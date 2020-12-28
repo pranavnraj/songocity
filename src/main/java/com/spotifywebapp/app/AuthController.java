@@ -3,13 +3,9 @@ package com.spotifywebapp.app;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import com.spotifywebapp.app.SpotifyWebAPI;
-
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.HashMap;
 
@@ -25,11 +21,11 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String login(Model model) {
+    public @ResponseBody String login(Model model) {
         model.addAttribute("name", "World");
         api = new SpotifyWebAPI();
         api.authorizeAPI();
-        return "homepage";
+        return "Close Tab";
     }
 
     @GetMapping("/callback")
