@@ -25,9 +25,11 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public void login() {
+    public String login(Model model) {
+        model.addAttribute("name", "World");
         api = new SpotifyWebAPI();
         api.authorizeAPI();
+        return "homepage";
     }
 
     @GetMapping("/callback")
@@ -37,8 +39,8 @@ public class AuthController {
         api.accessTokenAPI();
         HashMap<String, String> userInfo = api.currentUserAPI();
 
-        userInfo.get("display_name");
-        return "greeting";
+        System.out.println(userInfo.get("display_name"));
+        return "homepage";
     }
 
 }
