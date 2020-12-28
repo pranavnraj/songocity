@@ -20,14 +20,10 @@ import React from "react";
 // core components
 
 
-export default function SignInPage() {
-  
- 
-
-
+export default function Homepage() {
   return (
-    <>
-      Homepage
-    </>
+      <div>
+          Homepage
+      </div>
   );
 }
