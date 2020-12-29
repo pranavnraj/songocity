@@ -6,32 +6,34 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.spotifywebapp.app.SpotifyWebAPI;
+import com.spotifywebapp.app.SpotifyWebAPISingleton;
 
 import java.lang.reflect.Array;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 @Controller
 public class AuthController {
 
-    public SpotifyWebAPI api;
+    private SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
 
     @GetMapping("/greeting")
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
+        System.out.println("Greeting done");
         return "greeting";
     }
 
     @GetMapping("/login")
     public @ResponseBody String login(Model model) {
         model.addAttribute("name", "World");
-        api = new SpotifyWebAPI();
         api.authorizeAPI();
         return "Close Tab";
     }
 
     @GetMapping("/callback")
-    public String callback(@RequestParam(name="code") String code) {
+    public @ResponseBody String callback(@RequestParam(name="code") String code) {
         api.setAuthCode(code);
         api.refreshTokenAPI();
         api.accessTokenAPI();
@@ -87,7 +89,11 @@ public class AuthController {
             }
         }
 
-        return "homepage";
+        HttpClientHandler handler = new HttpClientHandler();
+        handler.formRequest("http://localhost:8888/greeting");
+        HttpResponse response = handler.sendRequest();
+        System.out.println(response.toString());
+        return response.toString();
     }
 
 }
