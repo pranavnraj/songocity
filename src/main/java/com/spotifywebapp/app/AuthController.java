@@ -23,6 +23,7 @@ import java.util.HashMap;
 public class AuthController {
 
     private SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
+    private MongoDBClient mongoClient = MongoDBSingleton.getInstance();
 
     @GetMapping("/greeting")
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
@@ -45,6 +46,9 @@ public class AuthController {
         api.accessTokenAPI();
 
         HashMap<String, String> userInfo = api.currentUserAPI();
+
+        mongoClient.createNewProfile(userInfo);
+
 
         // Profile
         System.out.println("Display Name: " + userInfo.get("display_name"));
