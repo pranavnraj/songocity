@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div>
+    Homepage
+        <button onClick="data_transfer()" href="/datatransfer" class="btn btn-primary">Log in with Spotify</button>
+    </div>
+    <script>
+      function data_transfer(){
+        $.ajax({
+          url: '/datatransfer',
+          type: 'GET'
+        })
+      }
+     </script>
+</body>
+</html>
