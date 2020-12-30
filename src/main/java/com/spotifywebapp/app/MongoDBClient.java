@@ -30,6 +30,12 @@ public class MongoDBClient {
         songbirdDB = mongoClient.getDatabase(MongoDBConstants.DB_NAME);
     }
 
+    public MongoDBClient(String uri) {
+        mongoClient = MongoClients.create(uri);
+        songbirdDB = mongoClient.getDatabase(MongoDBConstants.DB_NAME);
+    }
+
+
     public Document getProfile(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
         Document doc = collection.find(eq("_id", id)).first();
