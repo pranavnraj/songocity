@@ -47,7 +47,7 @@ public class AuthController {
 
         HashMap<String, String> userInfo = api.currentUserAPI();
 
-        mongoClient.createNewProfile(userInfo);
+        //mongoClient.createNewProfile(userInfo);
 
 
         // Profile
