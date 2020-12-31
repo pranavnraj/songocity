@@ -4,14 +4,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
-
 import com.spotifywebapp.app.SpotifyWebAPI;
 import com.spotifywebapp.app.SpotifyWebAPISingleton;
-
 import java.lang.reflect.Array;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.json.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class AuthController {
@@ -26,14 +28,37 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public @ResponseBody String login(Model model) {
+    @CrossOrigin(origins="http://localhost:3000")
+    public @ResponseBody ResponseEntity<String> login(Model model) {
         model.addAttribute("name", "World");
         api.authorizeAPI();
-        return "Close Tab";
+        try{
+            TimeUnit.SECONDS.sleep(20);
+        }
+        catch(InterruptedException e){
+            System.out.println(e.toString());
+        }
+        
+        HashMap<String, String> userInfo = api.currentUserAPI();
+        JSONObject obj = new JSONObject();
+        obj.put("id", userInfo.get("id"));
+        obj.put("display_name", userInfo.get("display_name"));
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+        // return new ResponseEntity<>("Custom header set", HttpStatus.OK);
     }
+    @GetMapping("/profile")
+    @CrossOrigin(origins="http://localhost:3000")
+    public @ResponseBody ResponseEntity<String> profile(){
+        HashMap<String, String> userInfo = api.currentUserAPI();
+        JSONObject obj = new JSONObject();
+        obj.put("id", userInfo.get("id"));
+        obj.put("display_name", userInfo.get("display_name"));
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
 
+    }
     @GetMapping("/callback")
-    public @ResponseBody String callback(@RequestParam(name="code") String code) {
+    @CrossOrigin(origins="http://localhost:3000")
+    public @ResponseBody ResponseEntity<String> callback(@RequestParam(name="code") String code) {
         api.setAuthCode(code);
         api.refreshTokenAPI();
         api.accessTokenAPI();
@@ -89,11 +114,17 @@ public class AuthController {
             }
         }
 
-        HttpClientHandler handler = new HttpClientHandler();
-        handler.formRequest("http://localhost:8888/greeting");
-        HttpResponse response = handler.sendRequest();
-        System.out.println(response.toString());
-        return response.toString();
+        // HttpClientHandler handler = new HttpClientHandler();
+        // handler.formRequest("http://localhost:8888/greeting");
+        // HttpResponse response = handler.sendRequest();
+        // System.out.println(response.toString());
+        // JSONObject obj = new JSONObject();
+        // obj.put("id", userInfo.get("id"));
+        // obj.put("display_name", userInfo.get("display_name"));
+        // return obj.toString();
+
+        return new ResponseEntity<>("Custom header set", HttpStatus.OK);
+
     }
 
 }
