@@ -17,6 +17,7 @@
 */
 import React from "react";
 import classnames from "classnames";
+import axios from 'axios';
 // reactstrap components
 import {
   Button,
@@ -81,7 +82,26 @@ export default function SignInPage() {
     );
   };
   const handleLogin = () => {
-    window.location = `${REACT_APP_AUTHORIZE_URL}?client_id=${REACT_APP_CLIENT_ID}&redirect_uri=${REACT_APP_REDIRECT_URL}&response_type=token&show_dialog=true`;
+    axios({
+      "method": "GET",
+      "url": "http://localhost:8888/login",
+      "headers": {
+        "content-type": "application/octet-stream",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PUT",
+        "Access-Control-Allow-Headers": "append, delete, entries, foreach, get, has, keys, set, values, Authorization"
+      }, "params": {
+        "language_code": "en"
+      }
+    })
+    .then((response) => {
+      console.log(response.data);
+      
+    })
+    .catch((error) => {
+      console.log("response");
+      console.log(error)
+    })
   };
   return (
     <>
