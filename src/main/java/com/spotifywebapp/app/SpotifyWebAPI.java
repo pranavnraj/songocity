@@ -12,6 +12,7 @@ import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredentials;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 
+import com.wrapper.spotify.requests.data.browse.GetRecommendationsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
 import com.wrapper.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
@@ -25,6 +26,8 @@ import org.apache.hc.core5.http.ParseException;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.io.IOException;
 import java.net.URI;
@@ -129,7 +132,7 @@ public class SpotifyWebAPI {
     public ArrayList<String> currentUserRecentTracks(){
         this.setAccessSpotifyApi();
 
-        GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest = spotifyApi.getCurrentUsersRecentlyPlayedTracks().build();
+        GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest = spotifyApi.getCurrentUsersRecentlyPlayedTracks().after(new Date(1608940800)).build();
         ArrayList<String> recentTracks = new ArrayList<String>();
         try{
             PagingCursorbased<PlayHistory> playHistoryPagingCursorbased = getCurrentUsersRecentlyPlayedTracksRequest.execute();
@@ -173,15 +176,36 @@ public class SpotifyWebAPI {
         try{
             Paging<PlaylistTrack> playlistTrackPaging = getPlaylistsItemsRequest.execute();
 
-            PlaylistTrack[] items = playlistTrackPaging.getItems();
+            if(playlistTrackPaging.getNext() == null){
+                PlaylistTrack[] items = playlistTrackPaging.getItems();
 
-            for(PlaylistTrack track : items){
-                playistTracks.put(track.getTrack().getId(),track.getTrack().getName());
+                for (PlaylistTrack track : items) {
+                    playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                }
+            }else {
+                int offset = 0;
+                while (playlistTrackPaging.getNext() != null) {
+                    PlaylistTrack[] items = playlistTrackPaging.getItems();
+
+                    for (PlaylistTrack track : items) {
+                        playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    }
+                    offset += 100;
+                    getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).offset(offset).build();
+                    playlistTrackPaging = getPlaylistsItemsRequest.execute();
+                }
+                PlaylistTrack[] items = playlistTrackPaging.getItems();
+
+                for (PlaylistTrack track : items) {
+                    playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                }
             }
 
         }catch(IOException | SpotifyWebApiException | ParseException e) {
             System.out.print("Error: " + e.getMessage());
         }
+
+        System.out.println("Songs: " + playistTracks.size());
 
         return playistTracks;
     }
@@ -190,31 +214,192 @@ public class SpotifyWebAPI {
         //this.setAccessSpotifyApi();
 
         String[] ids = playlistTracks.keySet().toArray(new String[0]);
-        GetAudioFeaturesForSeveralTracksRequest getAudioFeaturesForSeveralTracksRequest = spotifyApi.getAudioFeaturesForSeveralTracks(ids).build();
-        HashMap<String,HashMap<String,Float>> tracksInfo = new HashMap<String,HashMap<String,Float>>();
-        try {
-            AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
+        System.out.println(ids.length);
+        HashMap<String, HashMap<String, Float>> tracksInfo = new HashMap<String, HashMap<String, Float>>();
+        for(int i = 0; i < ids.length; i +=101) {
+            String[] subset_ids = Arrays.copyOfRange(ids, i, i + 100);
 
-            for (AudioFeatures trackInfo : audioFeatures) {
-                if(trackInfo != null) {
-                    tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
-                    tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
-                    tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
-                    tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
-                    tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
-                    tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
-                    tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
-                    tracksInfo.get(trackInfo.getId()).put("liveness", trackInfo.getLiveness());
-                    tracksInfo.get(trackInfo.getId()).put("loudness", trackInfo.getLoudness());
-                    tracksInfo.get(trackInfo.getId()).put("tempo", trackInfo.getTempo());
-                    tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
-                    tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
+            GetAudioFeaturesForSeveralTracksRequest getAudioFeaturesForSeveralTracksRequest = spotifyApi.getAudioFeaturesForSeveralTracks(subset_ids).build();
+
+            try {
+                AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
+
+                for (AudioFeatures trackInfo : audioFeatures) {
+                    if (trackInfo != null) {
+                        tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
+                        tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
+                        tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
+                        tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
+                        tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
+                        tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
+                        tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
+                        tracksInfo.get(trackInfo.getId()).put("liveness", trackInfo.getLiveness());
+                        tracksInfo.get(trackInfo.getId()).put("loudness", trackInfo.getLoudness());
+                        tracksInfo.get(trackInfo.getId()).put("tempo", trackInfo.getTempo());
+                        tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
+                        tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
+                    }
                 }
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                System.out.print("Error: " + e.getMessage());
             }
-        }catch(IOException | SpotifyWebApiException | ParseException e) {
-            System.out.print("Error: " + e.getMessage());
         }
         return tracksInfo;
+    }
+
+    public ArrayList<String> getUniqueGenres(){
+        ArrayList<String> uniqueGenres = new ArrayList<String>();
+
+
+        return uniqueGenres;
+    }
+
+    public HashMap<String, String> getReccomendations(int limit){
+        this.setAccessSpotifyApi();
+        HashMap<String, String> recs = new HashMap<String,String>();
+        String [] genres = {    "acoustic",
+                "afrobeat",
+                "alt-rock",
+                "alternative",
+                "ambient",
+                "anime",
+                "black-metal",
+                "bluegrass",
+                "blues",
+                "bossanova",
+                "brazil",
+                "breakbeat",
+                "british",
+                "cantopop",
+                "chicago-house",
+                "children",
+                "chill",
+                "classical",
+                "club",
+                "comedy",
+                "country",
+                "dance",
+                "dancehall",
+                "death-metal",
+                "deep-house",
+                "detroit-techno",
+                "disco",
+                "disney",
+                "drum-and-bass",
+                "dub",
+                "dubstep",
+                "edm",
+                "electro",
+                "electronic",
+                "emo",
+                "folk",
+                "forro",
+                "french",
+                "funk",
+                "garage",
+                "german",
+                "gospel",
+                "goth",
+                "grindcore",
+                "groove",
+                "grunge",
+                "guitar",
+                "happy",
+                "hard-rock",
+                "hardcore",
+                "hardstyle",
+                "heavy-metal",
+                "hip-hop",
+                "holidays",
+                "honky-tonk",
+                "house",
+                "idm",
+                "indian",
+                "indie",
+                "indie-pop",
+                "industrial",
+                "iranian",
+                "j-dance",
+                "j-idol",
+                "j-pop",
+                "j-rock",
+                "jazz",
+                "k-pop",
+                "kids",
+                "latin",
+                "latino",
+                "malay",
+                "mandopop",
+                "metal",
+                "metal-misc",
+                "metalcore",
+                "minimal-techno",
+                "movies",
+                "mpb",
+                "new-age",
+                "new-release",
+                "opera",
+                "pagode",
+                "party",
+                "philippines-opm",
+                "piano",
+                "pop",
+                "pop-film",
+                "post-dubstep",
+                "power-pop",
+                "progressive-house",
+                "psych-rock",
+                "punk",
+                "punk-rock",
+                "r-n-b",
+                "rainy-day",
+                "reggae",
+                "reggaeton",
+                "road-trip",
+                "rock",
+                "rock-n-roll",
+                "rockabilly",
+                "romance",
+                "sad",
+                "salsa",
+                "samba",
+                "sertanejo",
+                "show-tunes",
+                "singer-songwriter",
+                "ska",
+                "sleep",
+                "songwriter",
+                "soul",
+                "soundtracks",
+                "spanish",
+                "study",
+                "summer",
+                "swedish",
+                "synth-pop",
+                "tango",
+                "techno",
+                "trance",
+                "trip-hop",
+                "turkish",
+                "work-out",
+                "world-music"};
+
+        for(String genre: genres) {
+            GetRecommendationsRequest getRecommendationsRequest = spotifyApi.getRecommendations().seed_genres(genre).limit(limit).build();
+
+            try {
+                Recommendations recommendations = getRecommendationsRequest.execute();
+                TrackSimplified[] tracks = recommendations.getTracks();
+
+                for (TrackSimplified track : tracks) {
+                    recs.put(track.getId(), track.getName());
+                }
+
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+        return recs;
     }
 
     public void refreshTokenAPI() {
