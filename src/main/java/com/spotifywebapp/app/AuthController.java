@@ -23,6 +23,7 @@ public class AuthController {
 
     private SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
     private MongoDBClient mongoClient = MongoDBSingleton.getInstance();
+    private Object syncObject = new Object();
 
     @GetMapping("/greeting")
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
@@ -36,11 +37,15 @@ public class AuthController {
     public @ResponseBody ResponseEntity<String> login(Model model) {
         model.addAttribute("name", "World");
         api.authorizeAPI();
-        try{
-            TimeUnit.SECONDS.sleep(20);
-        }
-        catch(InterruptedException e){
-            System.out.println(e.toString());
+
+        synchronized (syncObject) {
+            try {
+                // Calling wait() will block this thread until another thread
+                // calls notify() on the object.
+                syncObject.wait();
+            } catch (InterruptedException e) {
+                System.out.println(e.getMessage());
+            }
         }
         
         HashMap<String, String> userInfo = api.currentUserAPI();
@@ -63,9 +68,17 @@ public class AuthController {
     @GetMapping("/callback")
     @CrossOrigin(origins="http://localhost:3000")
     public @ResponseBody ResponseEntity<String> callback(@RequestParam(name="code") String code) {
+        System.out.println("Here");
+
+        System.out.println(code);
+
         api.setAuthCode(code);
         api.refreshTokenAPI();
         api.accessTokenAPI();
+
+        synchronized (syncObject) {
+            syncObject.notify();
+        }
 
         HashMap<String, String> userInfo = api.currentUserAPI();
 
