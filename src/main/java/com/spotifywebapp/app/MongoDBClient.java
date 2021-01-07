@@ -7,6 +7,8 @@ import com.mongodb.client.*;
 import com.mongodb.MongoClientSettings;
 
 import org.bson.Document;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,6 +17,8 @@ import static com.mongodb.client.model.Filters.*;
 import com.mongodb.client.result.DeleteResult;
 import static com.mongodb.client.model.Updates.*;
 import com.mongodb.client.result.UpdateResult;
+
+import javax.print.Doc;
 
 public class MongoDBClient {
 
@@ -38,6 +42,13 @@ public class MongoDBClient {
 
     public Document getProfile(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+        Document doc = collection.find(eq("_id", id)).first();
+
+        return doc;
+    }
+
+    public Document getFriendList(String id) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
         Document doc = collection.find(eq("_id", id)).first();
 
         return doc;
@@ -68,6 +79,49 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
         collection.deleteOne(eq("_id", id));
     }
+
+    public ArrayList<String> findMatchingFriends(String id) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        String pattern = ".*" + id + ".*";
+        FindIterable<Document> col = collection.find(regex("_id", pattern));
+
+        ArrayList<String> matchedStrings = new ArrayList<String>();
+
+        for(Document doc: col) {
+            matchedStrings.add(doc.getString("_id"));
+        }
+
+        return matchedStrings;
+    }
+
+    public String addFriend(String userId, String newFriendID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
+
+        if (getFriendList(userId).isEmpty()) {
+
+            ArrayList<String> friendList = new ArrayList<String>();
+            friendList.add(newFriendID);
+
+            Document newFriendEntry = new Document();
+            newFriendEntry.append("_id", userId);
+            newFriendEntry.append("friends", friendList);
+
+            collection.insertOne(newFriendEntry);
+            return "New Entry";
+        }
+
+        collection.updateOne(eq("_id", userId), push("friends", newFriendID));
+        return "Added Friend";
+    }
+
+    public void deleteFriend(String userId, String deletedFriendID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
+
+        collection.updateOne(eq("_id", userId), pull("friends", deletedFriendID));
+    }
+
+
 
 
 
