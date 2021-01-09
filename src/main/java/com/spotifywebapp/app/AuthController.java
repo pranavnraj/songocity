@@ -18,12 +18,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import java.util.concurrent.TimeUnit;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 @Controller
 public class AuthController {
 
     private SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
     private MongoDBClient mongoClient = MongoDBSingleton.getInstance();
     private Object syncObject = new Object();
+    private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
+
+    private String currentID = "";
 
     @GetMapping("/greeting")
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
@@ -48,17 +54,16 @@ public class AuthController {
             }
         }
         
-        HashMap<String, String> userInfo = api.currentUserAPI();
+        HashMap<String, String> userInfo = api.currentUserAPI(currentID);
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
         obj.put("display_name", userInfo.get("display_name"));
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
-        // return new ResponseEntity<>("Custom header set", HttpStatus.OK);
     }
     @GetMapping("/profile")
     @CrossOrigin(origins="http://localhost:3000")
     public @ResponseBody ResponseEntity<String> profile(){
-        HashMap<String, String> userInfo = api.currentUserAPI();
+        HashMap<String, String> userInfo = api.currentUserAPI(currentID);
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
         obj.put("display_name", userInfo.get("display_name"));
@@ -68,26 +73,27 @@ public class AuthController {
     @GetMapping("/callback")
     @CrossOrigin(origins="http://localhost:3000")
     public @ResponseBody ResponseEntity<String> callback(@RequestParam(name="code") String code) {
-        System.out.println("Here");
+        LOGGER.setLevel(Level.INFO);
 
         System.out.println(code);
 
-        api.setAuthCode(code);
-        api.refreshTokenAPI();
-        api.accessTokenAPI();
+        String id = api.storeTokensUponLogin(code);
+        currentID = id;
 
         synchronized (syncObject) {
             syncObject.notify();
         }
 
-        HashMap<String, String> userInfo = api.currentUserAPI();
+        HashMap<String, String> userInfo = api.currentUserAPI(id);
 
-        //mongoClient.createNewProfile(userInfo);
-
+        if (mongoClient.getProfile(userInfo.get("id")).isEmpty()) {
+            mongoClient.createNewProfile(userInfo);
+        }
 
         // Profile
         System.out.println("Display Name: " + userInfo.get("display_name"));
         System.out.println();
+        /*
         ArrayList<String> userRecentTracks = api.currentUserRecentTracks();
         System.out.println("Recently Listened to: " + userRecentTracks);
         System.out.println();
@@ -143,9 +149,9 @@ public class AuthController {
         // obj.put("id", userInfo.get("id"));
         // obj.put("display_name", userInfo.get("display_name"));
         // return obj.toString();
+        */
 
         return new ResponseEntity<>("Custom header set", HttpStatus.OK);
-
     }
 
 }

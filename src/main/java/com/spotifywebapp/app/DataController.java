@@ -61,4 +61,10 @@ public class DataController {
 
     }
 
+    /*
+    @GetMapping("/get_friend_list")
+    public @ResponseBody ResponseEntity<JSONObject> getFriendList() {
+        mongoClient.getFriendList();
+    }*/
+
 }
