@@ -98,7 +98,7 @@ public class MongoDBClient {
     public String addFriend(String userId, String newFriendID) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
 
-        if (getFriendList(userId).isEmpty()) {
+        if (getFriendList(userId) == null) {
 
             ArrayList<String> friendList = new ArrayList<String>();
             friendList.add(newFriendID);
@@ -119,6 +119,58 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
 
         collection.updateOne(eq("_id", userId), pull("friends", deletedFriendID));
+    }
+
+    public void storeAccessAndRefreshTokens(String userId, String accessToken, String refreshToken, long expiresIn,
+                                           long currentTime) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.TOKENS_COLLECTION);
+
+        Document queriedDoc = collection.find(eq("_id", userId)).first();
+
+        if (queriedDoc == null) {
+            Document newUserTokenEntry = new Document();
+            newUserTokenEntry.append("_id", userId);
+            newUserTokenEntry.append("access_token", accessToken);
+            newUserTokenEntry.append("refresh_token", refreshToken);
+            newUserTokenEntry.append("expires_in", expiresIn);
+            newUserTokenEntry.append("current_time", currentTime);
+
+            collection.insertOne(newUserTokenEntry);
+            return;
+        }
+
+        collection.updateOne(eq("_id", userId), set("access_token", accessToken));
+        collection.updateOne(eq("_id", userId), set("refresh_token", refreshToken));
+        collection.updateOne(eq("_id", userId), set("expires_in", expiresIn));
+        collection.updateOne(eq("_id", userId), set("current_time", currentTime));
+    }
+
+    public String retrieveRefreshToken(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.TOKENS_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        return doc.getString("refresh_token");
+    }
+
+    public String retrieveAccessToken(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.TOKENS_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        return doc.getString("access_token");
+    }
+
+    public long retrieveTokenLifetime(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.TOKENS_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        return doc.getLong("expires_in");
+    }
+
+    public long retrieveStoredTime(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.TOKENS_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        return doc.getLong("current_time");
     }
 
 

@@ -45,6 +45,8 @@ public class SpotifyWebAPI {
     private String refreshToken;
     private String accessToken;
 
+    private static MongoDBClient mongoClient = MongoDBSingleton.getInstance();
+
     public SpotifyWebAPI() {
         redirectURI = SpotifyHttpManager.makeUri(LoginCredentialConstants.REDIRECT_URI);
         spotifyApi = new SpotifyApi.Builder()
@@ -65,8 +67,9 @@ public class SpotifyWebAPI {
         }
     }
 
-    public HashMap<String, String> currentUserAPI() {
-        this.setAccessSpotifyApi();
+    public HashMap<String, String> currentUserAPI(String id) {
+        //this.setAccessSpotifyApi();
+        this.reprimeAPI(id);
 
         GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile().build();
 
@@ -402,18 +405,67 @@ public class SpotifyWebAPI {
         return recs;
     }
 
-    public void refreshTokenAPI() {
+    public String storeTokensUponLogin(String authCode) {
+        String id = "";
+
         AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(authCode).build();
         try {
             AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRequest.execute();
 
             spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
             spotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
+
+            GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile().build();
+            User user = getCurrentUsersProfileRequest.execute();
+            id = user.getId();
+
+            mongoClient.storeAccessAndRefreshTokens(id, spotifyApi.getAccessToken(), spotifyApi.getRefreshToken(),
+                    (long)authorizationCodeCredentials.getExpiresIn(), System.currentTimeMillis());
+
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
         }
 
-        this.refreshToken = spotifyApi.getRefreshToken();
+        return id;
+    }
+
+    public void reprimeAPI(String id) {
+        String userRefreshToken = mongoClient.retrieveRefreshToken(id);
+        String userAccessToken = mongoClient.retrieveAccessToken(id);
+        long tokenLifetime = mongoClient.retrieveTokenLifetime(id);
+        long storedTime = mongoClient.retrieveStoredTime(id);
+
+        if (System.currentTimeMillis() - tokenLifetime >= storedTime) {
+            this.spotifyApi = new SpotifyApi.Builder().
+                    setClientId(LoginCredentialConstants.CLIENT_ID).
+                    setClientSecret(LoginCredentialConstants.CLIENT_SECRET).
+                    setRefreshToken(userRefreshToken).build();
+
+            AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh()
+                    .build();
+
+            try {
+                final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRefreshRequest.execute();
+
+                spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
+
+                mongoClient.storeAccessAndRefreshTokens(id, authorizationCodeCredentials.getAccessToken(),
+                        authorizationCodeCredentials.getRefreshToken(),
+                        (long)authorizationCodeCredentials.getExpiresIn(), System.currentTimeMillis());
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+        else {
+            this.spotifyApi = new SpotifyApi.Builder().
+                    setClientId(LoginCredentialConstants.CLIENT_ID).
+                    setClientSecret(LoginCredentialConstants.CLIENT_SECRET).
+                    setRefreshToken(userRefreshToken).
+                    setAccessToken(userAccessToken).build();
+        }
+
+
+
     }
 
     public void accessTokenAPI() {
@@ -448,7 +500,4 @@ public class SpotifyWebAPI {
         this.spotifyApi = new SpotifyApi.Builder().setAccessToken(this.accessToken).build();
     }
 
-    public void setAuthCode(String authCode) {
-        this.authCode = authCode;
-    }
 }
