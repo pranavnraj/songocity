@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 @Controller
 public class AuthController {
 
@@ -40,8 +43,7 @@ public class AuthController {
 
     @GetMapping("/login")
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<String> login(Model model) {
-        model.addAttribute("name", "World");
+    public @ResponseBody ResponseEntity<String> login(HttpServletResponse response) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -58,6 +60,10 @@ public class AuthController {
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
         obj.put("display_name", userInfo.get("display_name"));
+
+        Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
+        response.addCookie(idCookie);
+
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
     @GetMapping("/profile")
