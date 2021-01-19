@@ -16,6 +16,7 @@ import org.json.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.WebUtils;
+import org.springframework.http.MediaType;
 
 import java.util.concurrent.TimeUnit;
 
@@ -78,9 +79,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK);
     }
 
-    @GetMapping("/callback")
+    @RequestMapping(value = "/callback", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<String> callback(@RequestParam(name="code") String code) {
+    public ResponseEntity<String> callback(@RequestParam(name="code") String code) {
         LOGGER.setLevel(Level.INFO);
 
         System.out.println(code);
@@ -101,6 +102,12 @@ public class AuthController {
         // Profile
         System.out.println("Display Name: " + userInfo.get("display_name"));
         System.out.println();
+
+        JSONObject obj = new JSONObject();
+        obj.put("id", userInfo.get("id"));
+        obj.put("display_name", userInfo.get("display_name"));
+        obj.put("email", userInfo.get("email"));
+
         /*
         ArrayList<String> userRecentTracks = api.currentUserRecentTracks();
         System.out.println("Recently Listened to: " + userRecentTracks);
@@ -159,7 +166,7 @@ public class AuthController {
         // return obj.toString();
         */
 
-        return new ResponseEntity<>("Custom header set", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
 }
