@@ -10,19 +10,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import com.spotifywebapp.app.SpotifyWebAPI;
-import com.spotifywebapp.app.SpotifyWebAPISingleton;
 
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 import javax.servlet.http.Cookie;
 
 @Controller
 public class DataController {
 
-    public SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
-    private MongoDBClient mongoClient = MongoDBSingleton.getInstance();
+    private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
+    private MongoDBClient mongoClient = MongoDBClient.getInstance();
+    private static final Logger LOGGER = Logger.getLogger(DataController.class.getName());
 
     @GetMapping("/datatransfer")
     public @ResponseBody String dataTransfer() {
@@ -33,10 +35,23 @@ public class DataController {
         return response.toString();
     }
 
+    @GetMapping("/profile")
+    @CrossOrigin(origins="http://localhost:3000")
+    public @ResponseBody ResponseEntity<JSONObject> getProfileInfo(@CookieValue(value = "user_id",
+            defaultValue = "user_id") String userId){
+        HashMap<String, String> userInfo = api.currentUserAPI(userId);
+        JSONObject obj = new JSONObject();
+        obj.put("id", userInfo.get("id"));
+        obj.put("display_name", userInfo.get("display_name"));
+        obj.put("email", userInfo.get("email"));
+        obj.put("profile_pic", userInfo.get("profile_pic"));
+        return ResponseEntity.status(HttpStatus.OK).body(obj);
+    }
+
     @GetMapping("/query_friend")
     public @ResponseBody ResponseEntity<JSONObject> queryFriend(@RequestParam(name="id_query") String id_query) {
 
-        ArrayList<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
+        List<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
 
         JSONObject obj = new JSONObject();
         obj.put("queries", matchedPattern.toArray());
@@ -63,10 +78,26 @@ public class DataController {
 
     }
 
-    /*
     @GetMapping("/get_friend_list")
-    public @ResponseBody ResponseEntity<JSONObject> getFriendList() {
-        mongoClient.getFriendList();
-    }*/
+    public @ResponseBody ResponseEntity<JSONObject> getFriendList(@CookieValue(value = "user_id",
+            defaultValue = "user_id") String userId) {
+        List<String> friendList = mongoClient.getFriendList(userId);
+
+        JSONObject obj = new JSONObject();
+        obj.put("friends", friendList.toArray());
+
+        return ResponseEntity.status(HttpStatus.OK).body(obj);
+    }
+
+    @GetMapping("/get_playlist_list")
+    public @ResponseBody ResponseEntity<JSONObject> getPlayListList(@CookieValue(value = "user_id",
+            defaultValue = "user_id") String userId) {
+        List<String> playlistList = mongoClient.getPlaylistList(userId);
+
+        JSONObject obj = new JSONObject();
+        obj.put("friends", playlistList.toArray());
+
+        return ResponseEntity.status(HttpStatus.OK).body(obj);
+    }
 
 }

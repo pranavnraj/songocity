@@ -12,6 +12,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.mongodb.client.model.Filters.*;
 import com.mongodb.client.result.DeleteResult;
@@ -25,7 +26,9 @@ public class MongoDBClient {
     MongoClient mongoClient;
     MongoDatabase songbirdDB;
 
-    public MongoDBClient(String host, int port) {
+    private static final MongoDBClient mongoDBClient = new MongoDBClient(MongoDBConstants.DEFAULT_HOST, MongoDBConstants.DEFAULT_PORT);
+
+    private MongoDBClient(String host, int port) {
         mongoClient = MongoClients.create(
                 MongoClientSettings.builder()
                         .applyToClusterSettings(builder ->
@@ -34,11 +37,14 @@ public class MongoDBClient {
         songbirdDB = mongoClient.getDatabase(MongoDBConstants.DB_NAME);
     }
 
-    public MongoDBClient(String uri) {
+    private MongoDBClient(String uri) {
         mongoClient = MongoClients.create(uri);
         songbirdDB = mongoClient.getDatabase(MongoDBConstants.DB_NAME);
     }
 
+    public static MongoDBClient getInstance() {
+        return mongoDBClient;
+    }
 
     public Document getProfile(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
@@ -47,11 +53,20 @@ public class MongoDBClient {
         return doc;
     }
 
-    public Document getFriendList(String id) {
+    public Document friendListExists(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
         Document doc = collection.find(eq("_id", id)).first();
 
         return doc;
+    }
+
+    public List<String> getFriendList(String id) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
+        Document doc = collection.find(eq("_id", id)).first();
+
+        List<String> friendList = doc.getList("friends", String.class);
+
+        return friendList;
     }
 
     public void createNewProfile(HashMap<String, String> userInfo) {
@@ -98,7 +113,7 @@ public class MongoDBClient {
     public String addFriend(String userId, String newFriendID) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
 
-        if (getFriendList(userId) == null) {
+        if (friendListExists(userId) == null) {
 
             ArrayList<String> friendList = new ArrayList<String>();
             friendList.add(newFriendID);
@@ -173,6 +188,41 @@ public class MongoDBClient {
         return doc.getLong("current_time");
     }
 
+    public Document playlistExists(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
+        Document doc = collection.find(eq("_id", userId)).first();
+
+        return doc;
+    }
+
+    public String addNewPlaylist(String userId, String playListId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
+
+        if (playlistExists(userId) == null) {
+
+            ArrayList<String> playlistList = new ArrayList<String>();
+            playlistList.add(playListId);
+
+            Document newPlaylistEntry = new Document();
+            newPlaylistEntry.append("_id", userId);
+            newPlaylistEntry.append("playlists", playlistList);
+
+            collection.insertOne(newPlaylistEntry);
+            return "New Entry";
+        }
+
+        collection.updateOne(eq("_id", userId), push("playlists", playListId));
+        return "Added Friend";
+    }
+
+    public List<String> getPlaylistList(String userID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
+        Document doc = collection.find(eq("_id", userID)).first();
+
+        List<String> playlistList = doc.getList("playlists", String.class);
+
+        return playlistList;
+    }
 
 
 

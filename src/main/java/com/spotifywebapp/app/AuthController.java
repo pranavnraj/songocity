@@ -8,7 +8,6 @@ import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
 import com.spotifywebapp.app.SpotifyWebAPI;
-import com.spotifywebapp.app.SpotifyWebAPISingleton;
 import java.lang.reflect.Array;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -16,19 +15,22 @@ import java.util.HashMap;
 import org.json.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.util.WebUtils;
+
 import java.util.concurrent.TimeUnit;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
 public class AuthController {
 
-    private SpotifyWebAPI api = SpotifyWebAPISingleton.getInstance();
-    private MongoDBClient mongoClient = MongoDBSingleton.getInstance();
+    private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
+    private MongoDBClient mongoClient = MongoDBClient.getInstance();
     private Object syncObject = new Object();
     private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
 
@@ -43,7 +45,7 @@ public class AuthController {
 
     @GetMapping("/login")
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<String> login(HttpServletResponse response) {
+    public @ResponseBody ResponseEntity.BodyBuilder login(HttpServletResponse response) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -64,18 +66,18 @@ public class AuthController {
         Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
         response.addCookie(idCookie);
 
-        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+        return ResponseEntity.status(HttpStatus.OK);
     }
-    @GetMapping("/profile")
-    @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<String> profile(){
-        HashMap<String, String> userInfo = api.currentUserAPI(currentID);
-        JSONObject obj = new JSONObject();
-        obj.put("id", userInfo.get("id"));
-        obj.put("display_name", userInfo.get("display_name"));
-        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
 
+    @GetMapping("/logout")
+    public @ResponseBody ResponseEntity.BodyBuilder logout(HttpServletRequest request, HttpServletResponse response) {
+        Cookie idCookie = WebUtils.getCookie(request, "user_id");
+        idCookie.setMaxAge(0);
+        response.addCookie(idCookie);
+
+        return ResponseEntity.status(HttpStatus.OK);
     }
+
     @GetMapping("/callback")
     @CrossOrigin(origins="http://localhost:3000")
     public @ResponseBody ResponseEntity<String> callback(@RequestParam(name="code") String code) {

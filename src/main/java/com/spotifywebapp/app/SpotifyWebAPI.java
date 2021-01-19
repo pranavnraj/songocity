@@ -45,15 +45,20 @@ public class SpotifyWebAPI {
     private String refreshToken;
     private String accessToken;
 
-    private static MongoDBClient mongoClient = MongoDBSingleton.getInstance();
+    private static MongoDBClient mongoClient = MongoDBClient.getInstance();
+    private static final SpotifyWebAPI api = new SpotifyWebAPI();
 
-    public SpotifyWebAPI() {
+    private SpotifyWebAPI() {
         redirectURI = SpotifyHttpManager.makeUri(LoginCredentialConstants.REDIRECT_URI);
         spotifyApi = new SpotifyApi.Builder()
                 .setClientId(LoginCredentialConstants.CLIENT_ID)
                 .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
                 .setRedirectUri(redirectURI)
                 .build();
+    }
+
+    public static SpotifyWebAPI getInstance() {
+        return api;
     }
 
     public void authorizeAPI() {
