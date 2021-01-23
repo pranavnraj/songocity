@@ -95,7 +95,9 @@ public class AuthController {
 
         HashMap<String, String> userInfo = api.currentUserAPI(id);
 
-        if (mongoClient.getProfile(userInfo.get("id")).isEmpty()) {
+        LOGGER.setLevel(Level.INFO);
+        System.out.println("userInfo.get(id): " + userInfo.get("id"));
+        if (mongoClient.getProfile(userInfo.get("id")) == null) {
             mongoClient.createNewProfile(userInfo);
         }
 

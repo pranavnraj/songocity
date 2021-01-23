@@ -26,7 +26,7 @@ public class MongoDBClient {
     MongoClient mongoClient;
     MongoDatabase songbirdDB;
 
-    private static final MongoDBClient mongoDBClient = new MongoDBClient(MongoDBConstants.DEFAULT_HOST, MongoDBConstants.DEFAULT_PORT);
+    private static final MongoDBClient mongoDBClient = new MongoDBClient(MongoDBConstants.DB_URI);
 
     private MongoDBClient(String host, int port) {
         mongoClient = MongoClients.create(
