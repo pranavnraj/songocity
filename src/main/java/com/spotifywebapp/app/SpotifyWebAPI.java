@@ -86,7 +86,8 @@ public class SpotifyWebAPI {
             userInfo.put("id", user.getId());
             userInfo.put("display_name", user.getDisplayName());
             userInfo.put("email", user.getEmail());
-            userInfo.put("profile_pic", user.getImages()[0].getUrl());
+            // userInfo.put("profile_pic", user.getImages()[0].getUrl());
+            userInfo.put("profile_pic", "");
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
@@ -428,6 +429,7 @@ public class SpotifyWebAPI {
                     (long)authorizationCodeCredentials.getExpiresIn(), System.currentTimeMillis());
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
+            System.out.println("First time access token error");
             System.out.println("Error: " + e.getMessage());
         }
 
@@ -458,6 +460,7 @@ public class SpotifyWebAPI {
                         authorizationCodeCredentials.getRefreshToken(),
                         (long)authorizationCodeCredentials.getExpiresIn(), System.currentTimeMillis());
             } catch (IOException | SpotifyWebApiException | ParseException e) {
+                System.out.println("Refresh access token error");
                 System.out.println("Error: " + e.getMessage());
             }
         }
