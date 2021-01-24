@@ -5,3 +5,4 @@ Set up Maven first following this instruction: [Maven in 5 minutes](https://mave
 
 ## Launch Website Locally
 Run `./mvnw spring-boot:run`. If successful, go to localhost:8888 to view the website.
+If you need access to cloud MongoDB, run `mvn spring-boot:run -Dspring-boot.run.jvmArguments="-Djdk.tls.client.protocols=TLSv1.2"`
