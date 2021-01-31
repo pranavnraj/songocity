@@ -96,7 +96,6 @@ export default function SignInPage() {
     })
     .then((response) => {
       console.log(response.data);
-      
     })
     .catch((error) => {
       console.log("response");
