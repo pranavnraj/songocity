@@ -189,6 +189,21 @@ export default function IndexNavbar() {
               </DropdownMenu>
             </UncontrolledDropdown> */}
             <NavItem>
+              <Button className="btn-link" color="success">
+                Friends
+              </Button>
+            </NavItem>
+            <NavItem>
+              <Button className="btn-link" color="warning">
+                Recommender
+              </Button>
+            </NavItem>
+            <NavItem>
+              <Button className="btn-link" color="danger">
+                New Playlists
+              </Button>
+            </NavItem>
+            <NavItem>
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
@@ -205,6 +220,26 @@ export default function IndexNavbar() {
                 onClick={() => history.push("/sign-in-page")}
               >
                  Log in
+              </Button>
+            </NavItem>
+            <NavItem>
+              <Button
+                className="nav-link d-none d-lg-block"
+                color="primary"
+                target="_blank"
+                onClick={() => history.push("/profile-page")}
+              > 
+              <i className="tim-icons icon-single-02" /> Profile
+              </Button>
+            </NavItem>
+            <NavItem>
+              <Button
+                className="nav-link d-none d-lg-block"
+                color="primary"
+                target="_blank"
+                onClick={() => history.push("/profile-page")}
+              > 
+              Log out
               </Button>
             </NavItem>
           </Nav>
