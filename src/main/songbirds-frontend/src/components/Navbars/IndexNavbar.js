@@ -16,6 +16,7 @@
 
 */
 import React from "react";
+import axios from 'axios';
 import { Link, useHistory } from "react-router-dom";
 // reactstrap components
 import {
@@ -75,6 +76,10 @@ export default function IndexNavbar() {
       .getElementById("download-section")
       .scrollIntoView({ behavior: "smooth" });
   };
+  async function goToSpotify() {
+    const response = await axios.get('http://localhost:8888/login');
+    history.push('/homepage');
+  }
   return (
     <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
       <Container>
@@ -217,7 +222,7 @@ export default function IndexNavbar() {
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
-                onClick={() => history.push("/sign-in-page")}
+                onClick={goToSpotify()}
               >
                  Log in
               </Button>
