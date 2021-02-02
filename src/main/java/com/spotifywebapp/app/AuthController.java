@@ -46,7 +46,7 @@ public class AuthController {
 
     @GetMapping("/login")
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity.BodyBuilder login(HttpServletResponse response) {
+    public @ResponseBody ResponseEntity<String> login(HttpServletResponse response) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -67,7 +67,7 @@ public class AuthController {
         Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
         response.addCookie(idCookie);
 
-        return ResponseEntity.status(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Login Complete");
     }
 
     @GetMapping("/logout")
