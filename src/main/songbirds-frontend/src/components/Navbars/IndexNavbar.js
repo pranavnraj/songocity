@@ -78,7 +78,7 @@ export default function IndexNavbar() {
   };
   async function goToSpotify() {
     const response = await axios.get('http://localhost:8888/login');
-    history.push('/homepage');
+    alert(response)
   }
   return (
     <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
@@ -222,7 +222,7 @@ export default function IndexNavbar() {
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
-                onClick={goToSpotify()}
+                onClick={goToSpotify}
               >
                  Log in
               </Button>
