@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useState } from "react";
 import axios from 'axios';
 import { Link, useHistory } from "react-router-dom";
 // reactstrap components
@@ -41,6 +41,7 @@ export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
+  const [buttonText, setButtonText] = useState("Log in");
   const history = useHistory();
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
@@ -76,9 +77,16 @@ export default function IndexNavbar() {
       .getElementById("download-section")
       .scrollIntoView({ behavior: "smooth" });
   };
-  async function goToSpotify() {
-    const response = await axios.get('http://localhost:8888/login');
-    alert(response)
+  const getSpotifyLogin = () => {
+    return axios.get('http://localhost:8888/login');
+  }
+  const updateLoginHomepage = () => {
+    getSpotifyLogin().then((response) => {
+        setButtonText("Log out");
+    })
+    .catch((error) => {
+      console.log(error.response);
+    });
   }
   return (
     <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
@@ -222,9 +230,9 @@ export default function IndexNavbar() {
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
-                onClick={goToSpotify}
+                onClick={updateLoginHomepage}
               >
-                 Log in
+                 {buttonText}
               </Button>
             </NavItem>
             <NavItem>
@@ -237,7 +245,7 @@ export default function IndexNavbar() {
               <i className="tim-icons icon-single-02" /> Profile
               </Button>
             </NavItem>
-            <NavItem>
+            {/* <NavItem>
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
@@ -246,7 +254,7 @@ export default function IndexNavbar() {
               > 
               Log out
               </Button>
-            </NavItem>
+            </NavItem> */}
           </Nav>
         </Collapse>
       </Container>
