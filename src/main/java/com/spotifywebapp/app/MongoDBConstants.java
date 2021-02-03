@@ -10,5 +10,6 @@ public class MongoDBConstants {
     public static final String FRIENDS_COLLECTION = "friends";
     public static final String TOKENS_COLLECTION = "tokens";
     public static final String PLAYLISTS_COLLECTION = "playlists";
+    public static final String IGNORE_REFRESH = "IGNORE";
 
 }
