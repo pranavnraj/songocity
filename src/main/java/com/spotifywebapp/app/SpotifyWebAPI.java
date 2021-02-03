@@ -86,8 +86,7 @@ public class SpotifyWebAPI {
             userInfo.put("id", user.getId());
             userInfo.put("display_name", user.getDisplayName());
             userInfo.put("email", user.getEmail());
-            // userInfo.put("profile_pic", user.getImages()[0].getUrl());
-            userInfo.put("profile_pic", "");
+            userInfo.put("profile_pic", user.getImages()[0].getUrl());
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
@@ -448,6 +447,10 @@ public class SpotifyWebAPI {
                     setClientSecret(LoginCredentialConstants.CLIENT_SECRET).
                     setRefreshToken(userRefreshToken).build();
 
+            System.out.println(System.currentTimeMillis());
+            System.out.println(tokenLifetime);
+            System.out.println(storedTime);
+
             AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh()
                     .build();
 
@@ -457,7 +460,7 @@ public class SpotifyWebAPI {
                 spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
 
                 mongoClient.storeAccessAndRefreshTokens(id, authorizationCodeCredentials.getAccessToken(),
-                        authorizationCodeCredentials.getRefreshToken(),
+                        MongoDBConstants.IGNORE_REFRESH,
                         (long)authorizationCodeCredentials.getExpiresIn(), System.currentTimeMillis());
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 System.out.println("Refresh access token error");
