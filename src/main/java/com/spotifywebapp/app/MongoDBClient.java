@@ -155,7 +155,9 @@ public class MongoDBClient {
         }
 
         collection.updateOne(eq("_id", userId), set("access_token", accessToken));
-        collection.updateOne(eq("_id", userId), set("refresh_token", refreshToken));
+        if (!refreshToken.equals(MongoDBConstants.IGNORE_REFRESH)) {
+            collection.updateOne(eq("_id", userId), set("refresh_token", refreshToken));
+        }
         collection.updateOne(eq("_id", userId), set("expires_in", expiresIn));
         collection.updateOne(eq("_id", userId), set("current_time", currentTime));
     }
