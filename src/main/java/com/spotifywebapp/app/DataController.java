@@ -2,6 +2,7 @@ package com.spotifywebapp.app;
 
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,8 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.Cookie;
 
-@Controller
+@RestController
+@RequestMapping(value = "/data")
 public class DataController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
@@ -27,7 +29,7 @@ public class DataController {
     private static final Logger LOGGER = Logger.getLogger(DataController.class.getName());
 
     @GetMapping("/datatransfer")
-    public @ResponseBody String dataTransfer() {
+    public String dataTransfer() {
         HttpClientHandler handler = new HttpClientHandler();
         handler.formRequest("http://localhost:8888/greeting");
         HttpResponse response = handler.sendRequest();
@@ -35,9 +37,9 @@ public class DataController {
         return response.toString();
     }
 
-    @GetMapping("/profile")
+    @RequestMapping(value = "/profile", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<JSONObject> getProfileInfo(@CookieValue(value = "user_id",
+    public ResponseEntity<String> getProfileInfo(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId){
         HashMap<String, String> userInfo = api.currentUserAPI(userId);
         JSONObject obj = new JSONObject();
@@ -45,59 +47,66 @@ public class DataController {
         obj.put("display_name", userInfo.get("display_name"));
         obj.put("email", userInfo.get("email"));
         obj.put("profile_pic", userInfo.get("profile_pic"));
-        return ResponseEntity.status(HttpStatus.OK).body(obj);
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
-    @GetMapping("/query_friend")
-    public @ResponseBody ResponseEntity<JSONObject> queryFriend(@RequestParam(name="id_query") String id_query) {
+    @RequestMapping(value = "/query_friend", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query) {
 
         List<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
 
         JSONObject obj = new JSONObject();
         obj.put("queries", matchedPattern.toArray());
-        return ResponseEntity.status(HttpStatus.OK).body(obj);
+
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
-    @PostMapping("/add_friend")
-    public @ResponseBody
-    ResponseEntity.BodyBuilder addFriend(@RequestBody Friend friend) {
+    @RequestMapping(value = "/add_friend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity<String> addFriend(@RequestBody Friend friend) {
 
         String flag = mongoClient.addFriend(friend.getUser(), friend.getFriend());
 
-        return ResponseEntity.status(HttpStatus.OK).header("status", flag);
+        JSONObject obj = new JSONObject();
+        obj.put("status", flag);
+
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
 
     }
 
-    @DeleteMapping ("/remove_friend")
-    public @ResponseBody
-    ResponseEntity.BodyBuilder removeFriend(@RequestBody Friend friend) {
+    @RequestMapping(value = "/remove_friend", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity removeFriend(@RequestBody Friend friend) {
 
         mongoClient.deleteFriend(friend.getUser(), friend.getFriend());
 
-        return ResponseEntity.status(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).build();
 
     }
 
-    @GetMapping("/get_friend_list")
-    public @ResponseBody ResponseEntity<JSONObject> getFriendList(@CookieValue(value = "user_id",
+    @RequestMapping(value = "/get_friend_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity<String> getFriendList(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId) {
         List<String> friendList = mongoClient.getFriendList(userId);
 
         JSONObject obj = new JSONObject();
         obj.put("friends", friendList.toArray());
 
-        return ResponseEntity.status(HttpStatus.OK).body(obj);
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
-    @GetMapping("/get_playlist_list")
-    public @ResponseBody ResponseEntity<JSONObject> getPlayListList(@CookieValue(value = "user_id",
+    @RequestMapping(value = "/get_playlist_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity<String> getPlayListList(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId) {
         List<String> playlistList = mongoClient.getPlaylistList(userId);
 
         JSONObject obj = new JSONObject();
         obj.put("friends", playlistList.toArray());
 
-        return ResponseEntity.status(HttpStatus.OK).body(obj);
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
 }
