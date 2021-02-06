@@ -41,7 +41,8 @@ export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
-  const [buttonText, setButtonText] = useState("Log in");
+  const [authBtnText, setAuthText] = useState("Log in");
+  const [displayOptions, setDisplay] = useState(false);
   const history = useHistory();
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
@@ -80,14 +81,57 @@ export default function IndexNavbar() {
   const getSpotifyLogin = () => {
     return axios.get('http://localhost:8888/login');
   }
-  const updateLoginHomepage = () => {
-    getSpotifyLogin().then((response) => {
-        setButtonText("Log out");
-    })
-    .catch((error) => {
-      console.log(error.response);
-    });
+  const logout = () => {
+    return axios.get('http://localhost:8888/logout');
   }
+  const updateLoginHomepage = () => {
+    if(authBtnText == "Log in") {
+      getSpotifyLogin().then((response) => {
+        setAuthText("Log out");
+        setDisplay(true);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    } else {
+      logout().then((response) => {
+        setAuthText("Log in");
+        setDisplay(false);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    }
+  }
+  const LoggedInButtons = () => (
+    <Nav navbar>
+      <NavItem>
+        <Button className="btn-link" color="success">
+          Friends
+        </Button>
+      </NavItem>
+      <NavItem>
+        <Button className="btn-link" color="warning">
+          Recommender
+        </Button>
+      </NavItem>
+      <NavItem>
+        <Button className="btn-link" color="danger">
+          New Playlists
+        </Button>
+      </NavItem>
+      <NavItem>
+        <Button
+          className="nav-link d-none d-lg-block"
+          color="primary"
+          target="_blank"
+          onClick={() => history.push("/profile-page")}
+        > 
+        <i className="tim-icons icon-single-02" /> Profile
+        </Button>
+      </NavItem>
+    </Nav>
+  );
   return (
     <Navbar className={"fixed-top " + color} color-on-scroll="100" expand="lg">
       <Container>
@@ -134,42 +178,6 @@ export default function IndexNavbar() {
             </Row>
           </div>
           <Nav navbar>
-            {/* <NavItem className="p-0">
-              <NavLink
-                data-placement="bottom"
-                href="https://twitter.com/CreativeTim"
-                rel="noopener noreferrer"
-                target="_blank"
-                title="Follow us on Twitter"
-              >
-                <i className="fab fa-twitter" />
-                <p className="d-lg-none d-xl-none">Twitter</p>
-              </NavLink>
-            </NavItem>
-            <NavItem className="p-0">
-              <NavLink
-                data-placement="bottom"
-                href="https://www.facebook.com/CreativeTim"
-                rel="noopener noreferrer"
-                target="_blank"
-                title="Like us on Facebook"
-              >
-                <i className="fab fa-facebook-square" />
-                <p className="d-lg-none d-xl-none">Facebook</p>
-              </NavLink>
-            </NavItem>
-            <NavItem className="p-0">
-              <NavLink
-                data-placement="bottom"
-                href="https://www.instagram.com/CreativeTimOfficial"
-                rel="noopener noreferrer"
-                target="_blank"
-                title="Follow us on Instagram"
-              >
-                <i className="fab fa-instagram" />
-                <p className="d-lg-none d-xl-none">Instagram</p>
-              </NavLink>
-            </NavItem> */}
             {/* <UncontrolledDropdown nav>
               <DropdownToggle
                 caret
@@ -201,60 +209,16 @@ export default function IndexNavbar() {
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown> */}
-            <NavItem>
-              <Button className="btn-link" color="success">
-                Friends
-              </Button>
-            </NavItem>
-            <NavItem>
-              <Button className="btn-link" color="warning">
-                Recommender
-              </Button>
-            </NavItem>
-            <NavItem>
-              <Button className="btn-link" color="danger">
-                New Playlists
-              </Button>
-            </NavItem>
-            <NavItem>
-              <Button
-                className="nav-link d-none d-lg-block"
-                color="primary"
-                target="_blank"
-                onClick={() => history.push("/register-page")}
-              >
-                <i className="tim-icons icon-spaceship" /> Sign Up
-              </Button>
-            </NavItem>
+            { displayOptions ? <LoggedInButtons /> : null }
             <NavItem>
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
                 onClick={updateLoginHomepage}
               >
-                 {buttonText}
+                 {authBtnText}
               </Button>
             </NavItem>
-            <NavItem>
-              <Button
-                className="nav-link d-none d-lg-block"
-                color="primary"
-                target="_blank"
-                onClick={() => history.push("/profile-page")}
-              > 
-              <i className="tim-icons icon-single-02" /> Profile
-              </Button>
-            </NavItem>
-            {/* <NavItem>
-              <Button
-                className="nav-link d-none d-lg-block"
-                color="primary"
-                target="_blank"
-                onClick={() => history.push("/profile-page")}
-              > 
-              Log out
-              </Button>
-            </NavItem> */}
           </Nav>
         </Collapse>
       </Container>
