@@ -8,6 +8,9 @@ import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
 import com.spotifywebapp.app.SpotifyWebAPI;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
@@ -26,6 +29,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @RestController
 public class AuthController {
@@ -38,8 +42,8 @@ public class AuthController {
     private String currentID = "";
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
-    public ResponseEntity login(HttpServletResponse response) {
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity login(HttpServletResponse response, HttpSession session) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -55,14 +59,21 @@ public class AuthController {
         HashMap<String, String> userInfo = api.currentUserAPI(currentID);
 
         Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
+        //idCookie.setDomain("null");
         response.addCookie(idCookie);
+
+        //session.setAttribute("hello", "world");
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
-    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = "user_id",
+            defaultValue = "user_id") String userId) {
+
+        LOGGER.log(Level.INFO, "User ID: " + userId);
+
         Cookie idCookie = WebUtils.getCookie(request, "user_id");
         idCookie.setMaxAge(0);
         response.addCookie(idCookie);
