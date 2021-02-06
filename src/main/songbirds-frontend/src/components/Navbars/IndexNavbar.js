@@ -79,10 +79,10 @@ export default function IndexNavbar() {
       .scrollIntoView({ behavior: "smooth" });
   };
   const getSpotifyLogin = () => {
-    return axios.get('http://localhost:8888/login');
+    return axios.get('http://localhost:8888/login', {withCredentials: true});
   }
   const logout = () => {
-    return axios.get('http://localhost:8888/logout');
+    return axios.get('http://localhost:8888/logout', {withCredentials: true});
   }
   const updateLoginHomepage = () => {
     if(authBtnText == "Log in") {
