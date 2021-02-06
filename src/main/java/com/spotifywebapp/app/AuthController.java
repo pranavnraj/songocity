@@ -27,7 +27,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@Controller
+@RestController
 public class AuthController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
@@ -37,16 +37,9 @@ public class AuthController {
 
     private String currentID = "";
 
-    @GetMapping("/greeting")
-    public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
-        model.addAttribute("name", name);
-        System.out.println("Greeting done");
-        return "greeting";
-    }
-
-    @GetMapping("/login")
+    @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000")
-    public @ResponseBody ResponseEntity<String> login(HttpServletResponse response) {
+    public ResponseEntity login(HttpServletResponse response) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -60,23 +53,21 @@ public class AuthController {
         }
         
         HashMap<String, String> userInfo = api.currentUserAPI(currentID);
-        JSONObject obj = new JSONObject();
-        obj.put("id", userInfo.get("id"));
-        obj.put("display_name", userInfo.get("display_name"));
 
         Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
         response.addCookie(idCookie);
 
-        return ResponseEntity.status(HttpStatus.OK).body("Login Complete");
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @GetMapping("/logout")
-    public @ResponseBody ResponseEntity.BodyBuilder logout(HttpServletRequest request, HttpServletResponse response) {
+    @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000")
+    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response) {
         Cookie idCookie = WebUtils.getCookie(request, "user_id");
         idCookie.setMaxAge(0);
         response.addCookie(idCookie);
 
-        return ResponseEntity.status(HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     @RequestMapping(value = "/callback", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
