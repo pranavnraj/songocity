@@ -15,7 +15,8 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import AppContext from "../AppContext";
 import axios from 'axios';
 import { Link, useHistory } from "react-router-dom";
 // reactstrap components
@@ -41,9 +42,8 @@ export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
-  const [authBtnText, setAuthText] = useState("Log in");
-  const [displayOptions, setDisplay] = useState(false);
   const history = useHistory();
+  const context = useContext(AppContext);
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
@@ -85,18 +85,18 @@ export default function IndexNavbar() {
     return axios.get('http://localhost:8888/logout', {withCredentials: true});
   }
   const updateLoginHomepage = () => {
-    if(authBtnText == "Log in") {
+    if(context.authBtnText == "Log in") {
       getSpotifyLogin().then((response) => {
-        setAuthText("Log out");
-        setDisplay(true);
+        context.setAuthText("Log out");
+        context.setDisplay(true);
       })
       .catch((error) => {
         console.log(error.response);
       });
     } else {
       logout().then((response) => {
-        setAuthText("Log in");
-        setDisplay(false);
+        context.setAuthText("Log in");
+        context.setDisplay(false);
       })
       .catch((error) => {
         console.log(error.response);
@@ -209,14 +209,14 @@ export default function IndexNavbar() {
                 </DropdownItem>
               </DropdownMenu>
             </UncontrolledDropdown> */}
-            { displayOptions ? <LoggedInButtons /> : null }
+            { context.displayOptions ? <LoggedInButtons /> : null }
             <NavItem>
               <Button
                 className="nav-link d-none d-lg-block"
                 color="primary"
                 onClick={updateLoginHomepage}
               >
-                 {authBtnText}
+                 {context.authBtnText}
               </Button>
             </NavItem>
           </Nav>
