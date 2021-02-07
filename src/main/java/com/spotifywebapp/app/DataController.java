@@ -38,7 +38,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> getProfileInfo(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId){
         HashMap<String, String> userInfo = api.currentUserAPI(userId);
@@ -51,7 +51,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/query_friend", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query) {
 
         List<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
@@ -63,7 +63,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/add_friend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> addFriend(@RequestBody Friend friend) {
 
         String flag = mongoClient.addFriend(friend.getUser(), friend.getFriend());
@@ -76,7 +76,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/remove_friend", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity removeFriend(@RequestBody Friend friend) {
 
         mongoClient.deleteFriend(friend.getUser(), friend.getFriend());
@@ -86,7 +86,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/get_friend_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> getFriendList(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId) {
         List<String> friendList = mongoClient.getFriendList(userId);
@@ -98,7 +98,7 @@ public class DataController {
     }
 
     @RequestMapping(value = "/get_playlist_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000")
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> getPlayListList(@CookieValue(value = "user_id",
             defaultValue = "user_id") String userId) {
         List<String> playlistList = mongoClient.getPlaylistList(userId);
