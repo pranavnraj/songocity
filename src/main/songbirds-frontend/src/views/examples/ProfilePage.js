@@ -15,8 +15,9 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useState } from "react";
 import classnames from "classnames";
+import axios from "axios";
 // javascript plugin used to create scrollbars on windows
 import PerfectScrollbar from "perfect-scrollbar";
 // reactstrap components
@@ -40,35 +41,56 @@ import {
   Row,
   Col,
   UncontrolledTooltip,
-  UncontrolledCarousel,
 } from "reactstrap";
 
 // core components
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
 
-const carouselItems = [
-  {
-    src: require("assets/img/denys.jpg").default,
-    altText: "Slide 1",
-    caption: "Big City Life, United States",
-  },
-  {
-    src: require("assets/img/fabien-bazanegue.jpg").default,
-    altText: "Slide 2",
-    caption: "Somewhere Beyond, United States",
-  },
-  {
-    src: require("assets/img/mark-finn.jpg").default,
-    altText: "Slide 3",
-    caption: "Stocks, United States",
-  },
-];
+// const carouselItems = [
+//   {
+//     src: require("assets/img/denys.jpg").default,
+//     altText: "Slide 1",
+//     caption: "Big City Life, United States",
+//   },
+//   {
+//     src: require("assets/img/fabien-bazanegue.jpg").default,
+//     altText: "Slide 2",
+//     caption: "Somewhere Beyond, United States",
+//   },
+//   {
+//     src: require("assets/img/mark-finn.jpg").default,
+//     altText: "Slide 3",
+//     caption: "Stocks, United States",
+//   },
+// ];
 
 let ps = null;
 
 export default function ProfilePage() {
-  const [tabs, setTabs] = React.useState(1);
+  const [tabs, setTabs] = useState(1);
+  const [name, setName] = useState("Jane Doe");
+  const [id, setId] = useState("55577854");
+  const [email, setEmail] = useState("janedoe@gmail.com");
+  const [profilePic, setProfilePic] = useState(null);
+
+  const getProfileInfo = () => {
+    return axios.get('http://localhost:8888/data/profile', {withCredentials: true});
+  }
+  
+  const populateProfileInfo = () => {
+    getProfileInfo().then((response) => {
+      console.log(response);
+      // response.data:
+      // display_name: "1282604711"
+      // id: "1282604711"
+      // profile_pic: "https://i.scdn.co/image/ab677570"
+    })
+    .catch((error) => {
+      console.log(error.response);
+    });
+  }
+
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
@@ -79,6 +101,7 @@ export default function ProfilePage() {
       }
     }
     document.body.classList.toggle("profile-page");
+    populateProfileInfo();
     // Specify how to clean up after this effect:
     return function cleanup() {
       if (navigator.platform.indexOf("Win") > -1) {
@@ -89,6 +112,7 @@ export default function ProfilePage() {
       document.body.classList.toggle("profile-page");
     };
   },[]);
+
   return (
     <>
       <IndexNavbar />
