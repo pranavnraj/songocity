@@ -80,11 +80,10 @@ export default function ProfilePage() {
   
   const populateProfileInfo = () => {
     getProfileInfo().then((response) => {
-      console.log(response);
-      // response.data:
-      // display_name: "1282604711"
-      // id: "1282604711"
-      // profile_pic: "https://i.scdn.co/image/ab677570"
+      const res = response.data;
+      setName(res.display_name);
+      setId(res.id);
+      setProfilePic(res.profile_pic);
     })
     .catch((error) => {
       console.log(error.response);
@@ -135,7 +134,7 @@ export default function ProfilePage() {
                     <img
                       alt="..."
                       className="img-center img-fluid rounded-circle"
-                      src={require("assets/img/mike.jpg").default}
+                      src={profilePic}
                     />
                     <h4 className="title">Your Profile</h4>
                   </CardHeader>
@@ -182,19 +181,15 @@ export default function ProfilePage() {
                           <tbody>
                             <tr>
                               <th>Name:</th>
-                              <td>Jane Doe</td>
+                              <td>{name}</td>
                             </tr>
                             <tr>
                               <th>Current Spotify ID:</th>
-                              <td>555 77 854</td>
+                              <td>{id}</td>
                             </tr>
                             <tr>
                               <th>Email:</th>
                               <td>janedoe@gmail.com</td>
-                            </tr>
-                            <tr>
-                              <th>Genre Preferences:</th>
-                              <td>EDM, Pop, Rock</td>
                             </tr>
                           </tbody>
                         </Table>
@@ -251,13 +246,13 @@ export default function ProfilePage() {
                         <Col md="6">
                           <FormGroup>
                             <label>Your Name</label>
-                            <Input defaultValue="Mike" type="text" />
+                            <Input defaultValue={name} type="text" />
                           </FormGroup>
                         </Col>
                         <Col md="6">
                           <FormGroup>
                             <label>Email address</label>
-                            <Input placeholder="mike@email.com" type="email" />
+                            <Input placeholder="janedoe@email.com" type="email" />
                           </FormGroup>
                         </Col>
                       </Row>
