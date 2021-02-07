@@ -1,23 +1,24 @@
 package com.spotifywebapp.app;
 
+import org.apache.hc.client5.http.classic.methods.HttpHead;
 import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
 
 import com.spotifywebapp.app.SpotifyWebAPI;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.print.attribute.standard.Media;
 import javax.servlet.http.Cookie;
 
 @RestController
@@ -26,6 +27,12 @@ public class DataController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
+    private static RestTemplate rest = new RestTemplate();
+    private static HttpHeaders headers = new HttpHeaders();
+    static {
+        headers.add("Content-Type", "application/json");
+        headers.add("Accept", "*/*");
+    }
     private static final Logger LOGGER = Logger.getLogger(DataController.class.getName());
 
     @GetMapping("/datatransfer")
@@ -107,6 +114,22 @@ public class DataController {
         obj.put("friends", playlistList.toArray());
 
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+    }
+
+    @RequestMapping(value = "/reccomender", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity<String> getRecommendedPlaylist(@RequestBody Friends friends, @CookieValue(value = "user_id",
+            defaultValue = "user_id") String userId) {
+
+        LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
+
+        JSONObject friendIDJson = new JSONObject();
+        friendIDJson.put("friends", friends.getFriendIDs());
+
+        HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
+        ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, String.class);
+
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
 
 }
