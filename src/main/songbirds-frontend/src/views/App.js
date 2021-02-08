@@ -11,7 +11,7 @@ import LandingPage from "views/examples/LandingPage.js";
 import RegisterPage from "views/examples/RegisterPage.js";
 import SignInPage from "views/examples/SignInPage.js";
 import ProfilePage from "views/examples/ProfilePage.js";
-import Homepage from "views/examples/Homepage.js";
+import FriendsPage from "views/examples/FriendsPage.js";
 
 export default function App () {
   const [authBtnText, setAuthText] = useState("Log in");
@@ -46,8 +46,8 @@ export default function App () {
             render={(props) => <ProfilePage {...props} />}
           />
           <Route
-            path="/homepage"
-            render={(props) => <Homepage {...props}/>}
+            path="/friends"
+            render={(props) => <FriendsPage {...props}/>}
             />
           <Redirect from="/" to="/components" />
         </Switch>
