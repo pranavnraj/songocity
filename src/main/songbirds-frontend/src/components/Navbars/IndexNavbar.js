@@ -106,7 +106,11 @@ export default function IndexNavbar() {
   const LoggedInButtons = () => (
     <Nav navbar>
       <NavItem>
-        <Button className="btn-link" color="success">
+        <Button 
+          className="btn-link" 
+          color="success"
+          onClick={() => history.push("/friends")}
+        >
           Friends
         </Button>
       </NavItem>
