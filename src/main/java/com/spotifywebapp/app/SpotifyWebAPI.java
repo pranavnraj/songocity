@@ -66,7 +66,13 @@ public class SpotifyWebAPI {
     }
 
     public void authorizeAPI() {
-        AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().scope("user-top-read,user-read-recently-played").build();
+        spotifyApi = new SpotifyApi.Builder()
+                .setClientId(LoginCredentialConstants.CLIENT_ID)
+                .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
+                .setRedirectUri(redirectURI)
+                .build();
+
+        AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().scope("user-top-read,user-read-recently-played,user-read-email").build();
         URI authorizeURI = authorizationCodeUriRequest.execute();
         Runtime rt = Runtime.getRuntime();
         try {
