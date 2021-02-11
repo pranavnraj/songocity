@@ -43,7 +43,7 @@ public class AuthController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity login(HttpServletResponse response, HttpSession session) {
+    public ResponseEntity login(HttpSession session) {
         api.authorizeAPI();
 
         synchronized (syncObject) {
@@ -57,32 +57,18 @@ public class AuthController {
         }
         
         HashMap<String, String> userInfo = api.currentUserAPI(currentID);
-
-        Cookie idCookie = new Cookie("user_id", userInfo.get("id"));
-        //idCookie.setDomain("null");
-        response.addCookie(idCookie);
-
-        session.setAttribute("hello", "world");
+        session.setAttribute("user_id", userInfo.get("id"));
+        LOGGER.log(Level.INFO, "User ID: " + session.getAttribute("user_id"));
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @RequestMapping(value = "/testsession", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> testSession(HttpSession session) {
-        String var = session.getAttribute("hello").toString();
-        return ResponseEntity.status(HttpStatus.OK).body(var);
-    }
-
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity logout(HttpServletRequest request, HttpServletResponse response, @CookieValue(value = "user_id",
-            defaultValue = "user_id") String userId) {
+    public ResponseEntity logout(HttpSession session) {
 
-        LOGGER.log(Level.INFO, "User ID: " + userId);
-
-        Cookie idCookie = WebUtils.getCookie(request, "user_id");
-        idCookie.setMaxAge(0);
-        response.addCookie(idCookie);
+        LOGGER.log(Level.INFO, "User ID: " + session.getAttribute("user_id"));
+        session.invalidate();
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
