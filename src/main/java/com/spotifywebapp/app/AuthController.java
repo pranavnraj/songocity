@@ -62,9 +62,15 @@ public class AuthController {
         //idCookie.setDomain("null");
         response.addCookie(idCookie);
 
-        //session.setAttribute("hello", "world");
+        session.setAttribute("hello", "world");
 
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @RequestMapping(value = "/testsession", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> testSession(HttpSession session) {
+        String var = session.getAttribute("hello").toString();
+        return ResponseEntity.status(HttpStatus.OK).body(var);
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
