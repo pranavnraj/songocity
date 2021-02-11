@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import javax.print.attribute.standard.Media;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping(value = "/data")
@@ -46,9 +47,10 @@ public class DataController {
 
     @RequestMapping(value = "/profile", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getProfileInfo(@CookieValue(value = "user_id",
-            defaultValue = "user_id") String userId){
-        HashMap<String, String> userInfo = api.currentUserAPI(userId);
+    public ResponseEntity<String> getProfileInfo(HttpSession session, @CookieValue(value = "SESSION",
+            defaultValue = "session_cookie") String sessionCookie){
+
+        HashMap<String, String> userInfo = api.currentUserAPI(session.getAttribute("user_id").toString());
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
         obj.put("display_name", userInfo.get("display_name"));
@@ -94,9 +96,9 @@ public class DataController {
 
     @RequestMapping(value = "/get_friend_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getFriendList(@CookieValue(value = "user_id",
-            defaultValue = "user_id") String userId) {
-        List<String> friendList = mongoClient.getFriendList(userId);
+    public ResponseEntity<String> getFriendList(HttpSession session, @CookieValue(value = "SESSION",
+            defaultValue = "session_cookie") String sessionCookie) {
+        List<String> friendList = mongoClient.getFriendList(session.getAttribute("user_id").toString());
 
         JSONObject obj = new JSONObject();
         obj.put("friends", friendList.toArray());
@@ -106,9 +108,9 @@ public class DataController {
 
     @RequestMapping(value = "/get_playlist_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getPlayListList(@CookieValue(value = "user_id",
-            defaultValue = "user_id") String userId) {
-        List<String> playlistList = mongoClient.getPlaylistList(userId);
+    public ResponseEntity<String> getPlayListList(HttpSession session, @CookieValue(value = "SESSION",
+            defaultValue = "session_cookie") String sessionCookie) {
+        List<String> playlistList = mongoClient.getPlaylistList(session.getAttribute("user_id").toString());
 
         JSONObject obj = new JSONObject();
         obj.put("friends", playlistList.toArray());
@@ -118,8 +120,8 @@ public class DataController {
 
     @RequestMapping(value = "/reccomender", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getRecommendedPlaylist(@RequestBody Friends friends, @CookieValue(value = "user_id",
-            defaultValue = "user_id") String userId) {
+    public ResponseEntity<String> getRecommendedPlaylist(@RequestBody Friends friends, HttpSession session, @CookieValue(value = "SESSION",
+            defaultValue = "session_cookie") String sessionCookie) {
 
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
 
