@@ -97,6 +97,7 @@ export default function IndexNavbar() {
       logout().then((response) => {
         context.setAuthText("Log in");
         context.setDisplay(false);
+        history.push("/components");
       })
       .catch((error) => {
         console.log(error.response);
