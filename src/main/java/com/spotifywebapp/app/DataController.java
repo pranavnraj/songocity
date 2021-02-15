@@ -75,9 +75,9 @@ public class DataController {
 
     @RequestMapping(value = "/add_friend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> addFriend(@RequestBody Friend friend) {
+    public ResponseEntity<String> addFriend(@RequestBody Friend friend, HttpSession session) {
 
-        String flag = mongoClient.addFriend(friend.getUser(), friend.getFriend());
+        String flag = mongoClient.addFriend(session.getAttribute("user_id").toString(), friend.getFriend());
 
         JSONObject obj = new JSONObject();
         obj.put("status", flag);
@@ -88,9 +88,9 @@ public class DataController {
 
     @RequestMapping(value = "/remove_friend", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity removeFriend(@RequestBody Friend friend) {
+    public ResponseEntity removeFriend(@RequestParam(name="friend") String friend, HttpSession session) {
 
-        mongoClient.deleteFriend(friend.getUser(), friend.getFriend());
+        mongoClient.deleteFriend(session.getAttribute("user_id").toString(), friend);
 
         return ResponseEntity.status(HttpStatus.OK).build();
 
