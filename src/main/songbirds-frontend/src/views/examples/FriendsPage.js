@@ -21,7 +21,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 // core components
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
-import { Row, Container } from "reactstrap";
+import { Row, Container, ListGroup, ListGroupItem, Card, CardHeader, CardBody} from "reactstrap";
 
 let ps = null;
 
@@ -47,6 +47,33 @@ export default function FriendsPage() {
     };
   },[]);
 
+  const friendList = ["Jeff", "Carol"]
+  const listItemStyle = {
+    color: "black", 
+    fontFamily: "nucleo", 
+    fontWeight: "bold", 
+    fontSize: "20px"
+  }
+
+  const FriendsList = () => {
+    return (
+      <ListGroup>
+        {friendList.map(function (item) { 
+          return (
+            <ListGroupItem style={listItemStyle}>
+              <img
+              alt="..."
+              className="img-fluid rounded-circle shadow"
+              src={require("assets/img/ryan.jpg").default}
+              style={{ width: "50px", margin: "10px"}}
+              />
+              {item}
+            </ListGroupItem>
+          )
+        })}
+      </ListGroup>
+    );
+  }
   return (
     <>
       <IndexNavbar />
@@ -63,7 +90,14 @@ export default function FriendsPage() {
               src={require("assets/img/path4.png").default}
             />
             <Container className="align-items-center">
-              Friends page
+              <Card color="default">
+                <CardHeader>
+                  <h4 className="title">Friends List</h4>
+                </CardHeader>
+                <CardBody>
+                  <FriendsList />
+                </CardBody>
+              </Card>
             </Container>
           </div>
           <Footer />
