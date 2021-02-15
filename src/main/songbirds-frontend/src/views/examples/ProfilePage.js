@@ -84,6 +84,7 @@ export default function ProfilePage() {
       setName(res.display_name);
       setId(res.id);
       setProfilePic(res.profile_pic);
+      setEmail(res.email);
     })
     .catch((error) => {
       console.log(error.response);
@@ -189,7 +190,7 @@ export default function ProfilePage() {
                             </tr>
                             <tr>
                               <th>Email:</th>
-                              <td>janedoe@gmail.com</td>
+                              <td>{email}</td>
                             </tr>
                           </tbody>
                         </Table>
