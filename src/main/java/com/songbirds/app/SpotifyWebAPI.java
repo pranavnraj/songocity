@@ -1,5 +1,7 @@
-package com.spotifywebapp.app;
+package com.songbirds.app;
 
+import com.songbirds.util.LoginCredentialConstants;
+import com.songbirds.util.MongoDBConstants;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 
@@ -19,24 +21,18 @@ import com.wrapper.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTra
 import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
-import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForTrackRequest;
 import com.wrapper.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 import org.apache.hc.core5.http.ParseException;
 
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.spotifywebapp.app.LoginCredentialConstants;
 
 
 public class SpotifyWebAPI {

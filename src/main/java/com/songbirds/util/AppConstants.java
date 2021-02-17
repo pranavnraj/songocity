@@ -1,4 +1,4 @@
-package com.spotifywebapp.app;
+package com.songbirds.util;
 
 public class AppConstants {
 
