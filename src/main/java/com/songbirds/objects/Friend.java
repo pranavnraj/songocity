@@ -1,4 +1,4 @@
-package com.spotifywebapp.app;
+package com.songbirds.objects;
 
 public class Friend {
 

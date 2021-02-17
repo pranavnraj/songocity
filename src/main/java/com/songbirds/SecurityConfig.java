@@ -1,4 +1,4 @@
-package com.spotifywebapp.app;
+package com.songbirds;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
