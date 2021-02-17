@@ -1,25 +1,24 @@
-package com.spotifywebapp.app;
+package com.songbirds.controller;
 
-import org.apache.hc.client5.http.classic.methods.HttpHead;
+import com.songbirds.app.MongoDBClient;
+import com.songbirds.app.SpotifyWebAPI;
+import com.songbirds.objects.Friend;
+import com.songbirds.objects.Friends;
+import com.songbirds.util.AppConstants;
+import com.songbirds.util.HttpClientHandler;
 import org.json.JSONObject;
 import org.springframework.http.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 
 import org.springframework.web.bind.annotation.*;
 
-import com.spotifywebapp.app.SpotifyWebAPI;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.print.attribute.standard.Media;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 

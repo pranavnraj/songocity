@@ -1,4 +1,4 @@
-package com.spotifywebapp.app;
+package com.songbirds;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,34 +1,18 @@
-package com.spotifywebapp.app;
+package com.songbirds.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-
+import com.songbirds.app.MongoDBClient;
+import com.songbirds.app.SpotifyWebAPI;
 import org.springframework.web.bind.annotation.*;
-import com.spotifywebapp.app.SpotifyWebAPI;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
 import org.json.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.util.WebUtils;
 import org.springframework.http.MediaType;
-
-import java.util.concurrent.TimeUnit;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
