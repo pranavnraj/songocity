@@ -1,4 +1,4 @@
-package com.spotifywebapp.app;
+package com.songbirds.util;
 
 import java.io.IOException;
 import java.net.URI;

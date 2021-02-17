@@ -1,25 +1,20 @@
-package com.spotifywebapp.app;
+package com.songbirds.app;
 
 import com.mongodb.ServerAddress;
 
-import com.mongodb.ConnectionString;
 import com.mongodb.client.*;
 import com.mongodb.MongoClientSettings;
 
+import com.songbirds.util.MongoDBConstants;
 import org.bson.Document;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.*;
-import com.mongodb.client.result.DeleteResult;
 import static com.mongodb.client.model.Updates.*;
-import com.mongodb.client.result.UpdateResult;
-
-import javax.print.Doc;
 
 public class MongoDBClient {
 
