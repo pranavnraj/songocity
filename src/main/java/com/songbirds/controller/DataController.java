@@ -1,5 +1,8 @@
 package com.songbirds.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.songbirds.app.MongoDBClient;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.objects.Friend;
@@ -13,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.HashMap;
@@ -133,6 +138,36 @@ public class DataController {
         ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, String.class);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+    }
+
+    @RequestMapping(value = "/train", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity generateTrainingData(HttpSession session) throws FileNotFoundException {
+
+        LOGGER.log(Level.INFO, "Generating training data");
+
+        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo =
+                api.generateUserData(session.getAttribute("user_id").toString());
+        int numTracks = api.getNumTracks(playlistsInfo);
+
+        Gson gson = new GsonBuilder().create();
+        JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
+        PrintWriter out = new PrintWriter(session.getAttribute("user_id").toString() + ".txt");
+        out.println(user);
+        out.flush();
+
+        HashMap<String,String> genres = api.getRecommendations(numTracks/126);
+        HashMap<String,HashMap<String,Float>> genreInfo = api.getTracksInfo(genres);
+
+        Gson rec_gson = new GsonBuilder().create();
+        JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
+        PrintWriter outRec = new PrintWriter(session.getAttribute("user_id").toString()
+                + "genres.txt");
+        outRec.println(genreJson);
+        outRec.flush();
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+
     }
 
 }

@@ -84,6 +84,9 @@ export default function IndexNavbar() {
   const logout = () => {
     return axios.get('http://localhost:8888/logout', {withCredentials: true});
   }
+  const train = () => {
+      return axios.get('http://localhost:8888/data/train', {withCredentials: true});
+  }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
       getSpotifyLogin().then((response) => {
@@ -124,6 +127,13 @@ export default function IndexNavbar() {
         <Button className="btn-link" color="danger">
           New Playlists
         </Button>
+      </NavItem>
+      <NavItem>
+         <Button
+                onClick={train}
+         >
+                Train
+         </Button>
       </NavItem>
       <NavItem>
         <Button
