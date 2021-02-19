@@ -79,7 +79,6 @@ public class SpotifyWebAPI {
     }
 
     public HashMap<String, String> currentUserAPI(String id) {
-        //this.setAccessSpotifyApi();
         this.reprimeAPI(id);
 
         GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile().build();
@@ -101,8 +100,8 @@ public class SpotifyWebAPI {
         return userInfo;
     }
 
-    public ArrayList<String> currentUserTopArtists(){
-        this.setAccessSpotifyApi();
+    public ArrayList<String> currentUserTopArtists(String id){
+        this.reprimeAPI(id);
 
         GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi.getUsersTopArtists().build();
         ArrayList<String> artists = new ArrayList<String>();
@@ -122,8 +121,8 @@ public class SpotifyWebAPI {
         return artists;
     }
 
-    public ArrayList<String> currentUserTopTracks(){
-        this.setAccessSpotifyApi();
+    public ArrayList<String> currentUserTopTracks(String id){
+        this.reprimeAPI(id);
 
         GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks().build();
         ArrayList<String> tracks = new ArrayList<String>();
@@ -143,8 +142,8 @@ public class SpotifyWebAPI {
         return tracks;
     }
 
-    public ArrayList<String> currentUserRecentTracks(){
-        this.setAccessSpotifyApi();
+    public ArrayList<String> currentUserRecentTracks(String id){
+        this.reprimeAPI(id);
 
         GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest = spotifyApi.getCurrentUsersRecentlyPlayedTracks().after(new Date(1608940800)).build();
         ArrayList<String> recentTracks = new ArrayList<String>();
@@ -164,8 +163,8 @@ public class SpotifyWebAPI {
         return recentTracks;
     }
 
-    public HashMap<String,String> currentUserPlaylists(){
-        this.setAccessSpotifyApi();
+    public HashMap<String,String> currentUserPlaylists(String id){
+        this.reprimeAPI(id);
 
         GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest = spotifyApi.getListOfCurrentUsersPlaylists().build();
         HashMap<String, String> playlistInfo = new HashMap<String, String>();
@@ -224,6 +223,14 @@ public class SpotifyWebAPI {
         return playistTracks;
     }
 
+    public int getNumTracks(HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo){
+        int numTracks = 0;
+        for(String playlist: playlistsInfo.keySet()){
+            numTracks += playlistsInfo.get(playlist).keySet().size();
+        }
+        return numTracks;
+    }
+
     public HashMap<String, HashMap<String, Float>> getTracksInfo(HashMap<String,String> playlistTracks) {
         //this.setAccessSpotifyApi();
 
@@ -268,8 +275,8 @@ public class SpotifyWebAPI {
         return uniqueGenres;
     }
 
-    public HashMap<String, String> getReccomendations(int limit){
-        this.setAccessSpotifyApi();
+    public HashMap<String, String> getRecommendations(int limit){
+        //this.setAccessSpotifyApi();
         HashMap<String, String> recs = new HashMap<String,String>();
         String [] genres = {    "acoustic",
                 "afrobeat",
@@ -416,6 +423,27 @@ public class SpotifyWebAPI {
         return recs;
     }
 
+    public HashMap<String, HashMap<String, HashMap<String, Float>>>  generateUserData(String user_id) {
+        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = new HashMap<String, HashMap<String, HashMap<String, Float>>>();
+        HashMap<String, String> playlistInfo = currentUserPlaylists(user_id);
+        for (String playlistId : playlistInfo.keySet()) {
+            String playlistName = playlistInfo.get(playlistId);
+            playlistsInfo.put(playlistId, new HashMap<String, HashMap<String, Float>>());
+            System.out.println(playlistName + ": " + playlistId);
+            HashMap<String, String> playlistTracks = getTracks(playlistId);
+            HashMap<String, HashMap<String, Float>> playlistTrackInfo = getTracksInfo(playlistTracks);
+            for (String trackId : playlistTrackInfo.keySet()) {
+                String trackName = playlistTracks.get(trackId);
+                playlistsInfo.get(playlistId).put(trackId, new HashMap<String, Float>());
+                for (String feature : playlistTrackInfo.get(trackId).keySet()) {
+                    playlistsInfo.get(playlistId).get(trackId).put(feature, playlistTrackInfo.get(trackId).get(feature));
+//                    System.out.println(feature + ": " + playlistTrackInfo.get(trackId).get(feature));
+                }
+            }
+        }
+        return playlistsInfo;
+    }
+
     public String storeTokensUponLogin(String authCode) {
         String id = "";
 
@@ -483,38 +511,6 @@ public class SpotifyWebAPI {
 
 
 
-    }
-
-    public void accessTokenAPI() {
-
-        this.setRefreshSpotifyApi();
-
-        AuthorizationCodeRefreshRequest authorizationCodeRefreshRequest = spotifyApi.authorizationCodeRefresh()
-                .build();
-
-        try {
-            final AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRefreshRequest.execute();
-
-            spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
-
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-
-        this.accessToken = spotifyApi.getAccessToken();
-
-
-    }
-
-    private void setRefreshSpotifyApi() {
-        this.spotifyApi = new SpotifyApi.Builder().
-                setClientId(LoginCredentialConstants.CLIENT_ID).
-                setClientSecret(LoginCredentialConstants.CLIENT_SECRET).
-                setRefreshToken(this.refreshToken).build();
-    }
-
-    public void setAccessSpotifyApi() {
-        this.spotifyApi = new SpotifyApi.Builder().setAccessToken(this.accessToken).build();
     }
 
 }
