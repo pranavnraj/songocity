@@ -21,6 +21,8 @@ import com.wrapper.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTra
 import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
+import com.wrapper.spotify.requests.data.tracks.GetSeveralTracksRequest;
+import com.wrapper.spotify.requests.data.tracks.GetTrackRequest;
 import com.wrapper.spotify.requests.data.users_profile.GetCurrentUsersProfileRequest;
 import org.apache.hc.core5.http.ParseException;
 
@@ -237,20 +239,34 @@ public class SpotifyWebAPI {
         String[] ids = playlistTracks.keySet().toArray(new String[0]);
         System.out.println(ids.length);
         HashMap<String, HashMap<String, Float>> tracksInfo = new HashMap<String, HashMap<String, Float>>();
-        for(int i = 0; i < ids.length; i +=101) {
-            String[] subset_ids = Arrays.copyOfRange(ids, i, i + 100);
+        for(int i = 0; i < ids.length; i += 50) {
+            String[] subset_ids = Arrays.copyOfRange(ids, i, i + 50);
 
             GetAudioFeaturesForSeveralTracksRequest getAudioFeaturesForSeveralTracksRequest = spotifyApi.getAudioFeaturesForSeveralTracks(subset_ids).build();
+            GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi.getSeveralTracks(subset_ids).build();
 
             try {
                 AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
+                Track[] tracks = getSeveralTracksRequest.execute();
 
-                for (AudioFeatures trackInfo : audioFeatures) {
+                for (int j = 0; j < audioFeatures.length; j++) {
+                    AudioFeatures trackInfo = audioFeatures[j];
+                    Track track = tracks[j];
                     if (trackInfo != null) {
+
+                        int explicitFlag;
+                        if (track.getIsExplicit() == true) {
+                            explicitFlag = 1;
+                        } else {
+                            explicitFlag = 0;
+                        }
+
                         tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
+                        tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
+                        tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
+                        tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
                         tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
                         tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
-                        tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
                         tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
                         tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
                         tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
@@ -262,7 +278,7 @@ public class SpotifyWebAPI {
                     }
                 }
             } catch (IOException | SpotifyWebApiException | ParseException e) {
-                System.out.print("Error: " + e.getMessage());
+                e.printStackTrace();
             }
         }
         return tracksInfo;
@@ -417,7 +433,8 @@ public class SpotifyWebAPI {
                 }
 
             } catch (IOException | SpotifyWebApiException | ParseException e) {
-                System.out.println("Error: " + e.getMessage());
+                e.printStackTrace();
+                //System.out.println("Error: " + e.getMessage());
             }
         }
         return recs;
