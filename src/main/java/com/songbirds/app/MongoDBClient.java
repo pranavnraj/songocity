@@ -59,6 +59,10 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
         Document doc = collection.find(eq("_id", id)).first();
 
+        if(doc == null) {
+            return new ArrayList<String>();
+        }
+
         List<String> friendList = doc.getList("friends", String.class);
 
         return friendList;
