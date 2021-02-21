@@ -19,13 +19,28 @@ import React from "react";
 import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
+import axios from "axios";
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
-import { Row, Container, ListGroup, ListGroupItem, Card, CardHeader, CardBody} from "reactstrap";
+import { Container, ListGroup, ListGroupItem, Card, CardHeader, CardBody} from "reactstrap";
 
 let ps = null;
 
 export default function FriendsPage() {
+  const getFriendsList = () => {
+    return axios.get('http://localhost:8888/data/get_friend_list', {withCredentials: true});
+  }
+
+  const populateFriendsList = () => {
+    getFriendsList().then((response) => {
+      const res = response.data;
+      console.log(res);
+    })
+    .catch((error) => {
+      console.log(error.response);
+    });
+  }
+
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
@@ -36,6 +51,8 @@ export default function FriendsPage() {
       }
     }
     document.body.classList.toggle("profile-page");
+    populateFriendsList();
+
     // Specify how to clean up after this effect:
     return function cleanup() {
       if (navigator.platform.indexOf("Win") > -1) {
@@ -46,15 +63,15 @@ export default function FriendsPage() {
       document.body.classList.toggle("profile-page");
     };
   },[]);
-
-  const friendList = ["Jeff", "Carol"]
+  
+  const friendList = ["Carol"]
   const listItemStyle = {
     color: "black", 
     fontFamily: "nucleo", 
     fontWeight: "bold", 
     fontSize: "20px"
   }
-
+  
   const FriendsList = () => {
     return (
       <ListGroup>
