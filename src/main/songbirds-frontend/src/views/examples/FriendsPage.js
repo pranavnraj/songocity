@@ -34,12 +34,14 @@ export default function FriendsPage() {
   const populateFriendsList = () => {
     getFriendsList().then((response) => {
       const res = response.data;
-      console.log(res);
+      return res.friends;
     })
     .catch((error) => {
       console.log(error.response);
     });
   }
+  
+  let friendList = []
 
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
@@ -51,7 +53,7 @@ export default function FriendsPage() {
       }
     }
     document.body.classList.toggle("profile-page");
-    populateFriendsList();
+    friendList = populateFriendsList();
 
     // Specify how to clean up after this effect:
     return function cleanup() {
@@ -64,7 +66,6 @@ export default function FriendsPage() {
     };
   },[]);
   
-  const friendList = ["Carol"]
   const listItemStyle = {
     color: "black", 
     fontFamily: "nucleo", 
@@ -73,23 +74,27 @@ export default function FriendsPage() {
   }
   
   const FriendsList = () => {
-    return (
-      <ListGroup>
-        {friendList.map(function (item) { 
-          return (
-            <ListGroupItem style={listItemStyle}>
-              <img
-              alt="..."
-              className="img-fluid rounded-circle shadow"
-              src={require("assets/img/ryan.jpg").default}
-              style={{ width: "50px", margin: "10px"}}
-              />
-              {item}
-            </ListGroupItem>
-          )
-        })}
-      </ListGroup>
-    );
+    if(friendList.length > 0) {
+      return (
+        <ListGroup>
+          {friendList.map(function (item) { 
+            return (
+              <ListGroupItem style={listItemStyle}>
+                <img
+                alt="..."
+                className="img-fluid rounded-circle shadow"
+                src={require("assets/img/ryan.jpg").default}
+                style={{ width: "50px", margin: "10px"}}
+                />
+                {item}
+              </ListGroupItem>
+            )
+          })}
+        </ListGroup>
+      );
+    } else {
+      return <p>You currently don't have any friend on Spotify. </p>
+    }
   }
   return (
     <>
