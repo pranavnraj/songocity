@@ -150,9 +150,12 @@ public class DataController {
                 api.generateUserData(session.getAttribute("user_id").toString());
         int numTracks = api.getNumTracks(playlistsInfo);
 
+        System.out.println(playlistsInfo.get("3flCPJBVYDSnh5LkFd0GKH").get("275a9yzwGB6ncAW4SxY7q3").get("duration"));
+
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
-        PrintWriter out = new PrintWriter(session.getAttribute("user_id").toString() + ".txt");
+        PrintWriter out = new PrintWriter("src/main/jupyter_notebooks/" +
+                session.getAttribute("user_id").toString() + ".txt");
         out.println(user);
         out.flush();
 
@@ -161,8 +164,8 @@ public class DataController {
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
-        PrintWriter outRec = new PrintWriter(session.getAttribute("user_id").toString()
-                + "genres.txt");
+        PrintWriter outRec = new PrintWriter("src/main/jupyter_notebooks/" +
+                session.getAttribute("user_id").toString() + "genres.txt");
         outRec.println(genreJson);
         outRec.flush();
 
