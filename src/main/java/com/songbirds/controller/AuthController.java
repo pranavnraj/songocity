@@ -28,7 +28,6 @@ public class AuthController {
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity login(HttpSession session) {
-        api.authorizeAPI();
 
         synchronized (syncObject) {
             try {
