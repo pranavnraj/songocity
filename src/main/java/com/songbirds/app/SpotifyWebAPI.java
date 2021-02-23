@@ -72,6 +72,7 @@ public class SpotifyWebAPI {
 
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().scope("user-top-read,user-read-recently-played,user-read-email").build();
         URI authorizeURI = authorizationCodeUriRequest.execute();
+        System.out.println(authorizeURI);
         Runtime rt = Runtime.getRuntime();
         try {
             rt.exec("open " + authorizeURI);
@@ -263,18 +264,18 @@ public class SpotifyWebAPI {
 
                         tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
                         tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
-                        tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
-                        tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
-                        tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
+                        //tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
+                        //tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
+                        //tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
                         tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
                         tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
                         tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
-                        tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
+                        //tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
                         tracksInfo.get(trackInfo.getId()).put("liveness", trackInfo.getLiveness());
                         tracksInfo.get(trackInfo.getId()).put("loudness", trackInfo.getLoudness());
                         tracksInfo.get(trackInfo.getId()).put("tempo", trackInfo.getTempo());
-                        tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
-                        tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
+                        //tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
+                        //tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
                     }
                 }
             } catch (IOException | SpotifyWebApiException | ParseException e) {
@@ -434,7 +435,7 @@ public class SpotifyWebAPI {
 
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 e.printStackTrace();
-                //System.out.println("Error: " + e.getMessage());
+                System.out.println("Error: " + e.getMessage());
             }
         }
         return recs;
