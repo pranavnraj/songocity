@@ -44,6 +44,8 @@ export default function IndexNavbar() {
   const [color, setColor] = React.useState("navbar-transparent");
   const history = useHistory();
   const context = useContext(AppContext);
+  const clientID = "db69666057c14f1795515121f961890e";
+  const redirectURI = "http://localhost:8888/callback/";
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
@@ -89,6 +91,8 @@ export default function IndexNavbar() {
   }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
+      window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
+      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email")
       getSpotifyLogin().then((response) => {
         context.setAuthText("Log out");
         context.setDisplay(true);
