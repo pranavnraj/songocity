@@ -132,6 +132,7 @@ public class DataController {
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
 
         JSONObject friendIDJson = new JSONObject();
+        friendIDJson.put("user_id", session.getAttribute("user_id").toString());
         friendIDJson.put("friends", friends.getFriendIDs());
 
         HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
