@@ -8,7 +8,7 @@ from sklearn import svm
 
 def produceTrainingData(user_id):
 	data = {}
-	with open(user_id + '.txt','r') as test_file:
+	with open('../jupyter_notebooks/' + user_id + '.txt','r') as test_file:
     	data = json.load(test_file)
 
     for playlist in data:
@@ -37,7 +37,7 @@ def produceTestingData(friend_id_list):
 	
 	test_data = {}
 	for id in friend_id_list:
-		with open(id + ".txt", 'r') as test_file:
+		with open('../jupyter_notebooks/' + id + ".txt", 'r') as test_file:
 			data = json.load(test_file)
 			test_data = test_data + data
 

@@ -127,8 +127,7 @@ public class DataController {
 
     @RequestMapping(value = "/reccomender", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session, @CookieValue(value = "SESSION",
-            defaultValue = "session_cookie") String sessionCookie) {
+    public ResponseEntity<String> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
 
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
 
@@ -164,8 +163,6 @@ public class DataController {
         HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo =
                 api.generateUserData(session.getAttribute("user_id").toString());
         int numTracks = api.getNumTracks(playlistsInfo);
-
-        System.out.println(playlistsInfo.get("3flCPJBVYDSnh5LkFd0GKH").get("275a9yzwGB6ncAW4SxY7q3").get("duration"));
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
