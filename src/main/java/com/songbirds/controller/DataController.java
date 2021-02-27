@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -126,7 +127,7 @@ public class DataController {
 
     @RequestMapping(value = "/reccomender", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getRecommendedPlaylist(@RequestBody Friends friends, HttpSession session, @CookieValue(value = "SESSION",
+    public ResponseEntity<String> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session, @CookieValue(value = "SESSION",
             defaultValue = "session_cookie") String sessionCookie) {
 
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
@@ -138,8 +139,21 @@ public class DataController {
         HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
         ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, String.class);
 
+        // TODO convert from responseEntity body to arraylist/array of strings
+        ArrayList<String> track_URIs = new ArrayList<String>();
+        String playlistID = api.createPlaylist(session.getAttribute("user_id").toString(), friends.getFriendIDs().toString() + "Playlist");
+
+        String[] trackURIs = new String[track_URIs.size()];
+        for(int i = 0; i < track_URIs.size(); i += 1) {
+            trackURIs[i] = track_URIs.get(i);
+        }
+
+        api.addTracksToPlaylist(playlistID, trackURIs);
+
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
+
+
 
     @RequestMapping(value = "/train", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
