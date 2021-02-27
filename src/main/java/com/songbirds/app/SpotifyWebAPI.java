@@ -2,6 +2,7 @@ package com.songbirds.app;
 
 import com.songbirds.util.LoginCredentialConstants;
 import com.songbirds.util.MongoDBConstants;
+import com.wrapper.spotify.model_objects.special.SnapshotResult;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 
@@ -18,6 +19,8 @@ import com.wrapper.spotify.requests.data.browse.GetRecommendationsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
 import com.wrapper.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
+import com.wrapper.spotify.requests.data.playlists.AddItemsToPlaylistRequest;
+import com.wrapper.spotify.requests.data.playlists.CreatePlaylistRequest;
 import com.wrapper.spotify.requests.data.playlists.GetListOfCurrentUsersPlaylistsRequest;
 import com.wrapper.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import com.wrapper.spotify.requests.data.tracks.GetAudioFeaturesForSeveralTracksRequest;
@@ -63,22 +66,12 @@ public class SpotifyWebAPI {
         return api;
     }
 
-    public void authorizeAPI() {
+    public void initializeAPI() {
         spotifyApi = new SpotifyApi.Builder()
                 .setClientId(LoginCredentialConstants.CLIENT_ID)
                 .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
                 .setRedirectUri(redirectURI)
                 .build();
-
-        AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().scope("user-top-read,user-read-recently-played,user-read-email").build();
-        URI authorizeURI = authorizationCodeUriRequest.execute();
-        System.out.println(authorizeURI);
-        Runtime rt = Runtime.getRuntime();
-        try {
-            rt.exec("open " + authorizeURI);
-        } catch(IOException e) {
-            System.out.println(e.toString());
-        }
     }
 
     public HashMap<String, String> currentUserAPI(String id) {
@@ -461,6 +454,52 @@ public class SpotifyWebAPI {
         }
         return playlistsInfo;
     }
+
+    public String createPlaylist(String userId, String title){
+
+        final CreatePlaylistRequest createPlaylistRequest = spotifyApi.createPlaylist(userId, title).description("Playlist created based on friends in title tastes").build();
+        String playlistID = "";
+        try {
+            final Playlist playlist = createPlaylistRequest.execute();
+            playlistID = playlist.getId();
+
+            LOGGER.log(Level.INFO, "Created playlist: " + playlist.getName());
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return playlistID;
+
+    }
+
+    public void addTracksToPlaylist(String playlistID, String[] recTracks){
+
+        for(int i = 0; i < recTracks.length; i += 75) {
+
+            int limit = Integer.min(recTracks.length, i + 75);
+
+            String[] tracks = Arrays.copyOfRange(recTracks, i, limit);
+            LOGGER.log(Level.INFO, "Tracks Length: " + tracks.length);
+
+            AddItemsToPlaylistRequest addItemsToPlaylistRequest = spotifyApi.addItemsToPlaylist(playlistID, tracks).build();
+
+            try {
+                SnapshotResult snapshotResult = addItemsToPlaylistRequest.execute();
+                if (snapshotResult != null)
+                    LOGGER.log(Level.INFO, snapshotResult.getSnapshotId());
+                else
+                    LOGGER.log(Level.SEVERE, "Null Snapshot ID");
+
+
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                LOGGER.log(Level.SEVERE,"Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     public String storeTokensUponLogin(String authCode) {
         String id = "";
