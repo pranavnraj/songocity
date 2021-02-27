@@ -66,7 +66,7 @@ public class SpotifyWebAPI {
         return api;
     }
 
-    public void initializeAPI() {
+    public synchronized void initializeAPI() {
         spotifyApi = new SpotifyApi.Builder()
                 .setClientId(LoginCredentialConstants.CLIENT_ID)
                 .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
@@ -74,7 +74,7 @@ public class SpotifyWebAPI {
                 .build();
     }
 
-    public HashMap<String, String> currentUserAPI(String id) {
+    public synchronized HashMap<String, String> currentUserAPI(String id) {
         this.reprimeAPI(id);
 
         GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile().build();
@@ -96,7 +96,7 @@ public class SpotifyWebAPI {
         return userInfo;
     }
 
-    public ArrayList<String> currentUserTopArtists(String id){
+    public synchronized ArrayList<String> currentUserTopArtists(String id){
         this.reprimeAPI(id);
 
         GetUsersTopArtistsRequest getUsersTopArtistsRequest = spotifyApi.getUsersTopArtists().build();
@@ -117,7 +117,7 @@ public class SpotifyWebAPI {
         return artists;
     }
 
-    public ArrayList<String> currentUserTopTracks(String id){
+    public synchronized ArrayList<String> currentUserTopTracks(String id){
         this.reprimeAPI(id);
 
         GetUsersTopTracksRequest getUsersTopTracksRequest = spotifyApi.getUsersTopTracks().build();
@@ -138,7 +138,7 @@ public class SpotifyWebAPI {
         return tracks;
     }
 
-    public ArrayList<String> currentUserRecentTracks(String id){
+    public synchronized ArrayList<String> currentUserRecentTracks(String id){
         this.reprimeAPI(id);
 
         GetCurrentUsersRecentlyPlayedTracksRequest getCurrentUsersRecentlyPlayedTracksRequest = spotifyApi.getCurrentUsersRecentlyPlayedTracks().after(new Date(1608940800)).build();
@@ -159,7 +159,7 @@ public class SpotifyWebAPI {
         return recentTracks;
     }
 
-    public HashMap<String,String> currentUserPlaylists(String id){
+    public synchronized HashMap<String,String> currentUserPlaylists(String id){
         this.reprimeAPI(id);
 
         GetListOfCurrentUsersPlaylistsRequest getListOfCurrentUsersPlaylistsRequest = spotifyApi.getListOfCurrentUsersPlaylists().build();
@@ -228,7 +228,6 @@ public class SpotifyWebAPI {
     }
 
     public HashMap<String, HashMap<String, Float>> getTracksInfo(HashMap<String,String> playlistTracks) {
-        //this.setAccessSpotifyApi();
 
         String[] ids = playlistTracks.keySet().toArray(new String[0]);
         System.out.println(ids.length);
@@ -281,12 +280,10 @@ public class SpotifyWebAPI {
     public ArrayList<String> getUniqueGenres(){
         ArrayList<String> uniqueGenres = new ArrayList<String>();
 
-
         return uniqueGenres;
     }
 
     public HashMap<String, String> getRecommendations(int limit){
-        //this.setAccessSpotifyApi();
         HashMap<String, String> recs = new HashMap<String,String>();
         String [] genres = {    "acoustic",
                 "afrobeat",
@@ -501,7 +498,7 @@ public class SpotifyWebAPI {
     }
 
 
-    public String storeTokensUponLogin(String authCode) {
+    public synchronized String storeTokensUponLogin(String authCode) {
         String id = "";
 
         AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(authCode).build();
@@ -526,7 +523,7 @@ public class SpotifyWebAPI {
         return id;
     }
 
-    public void reprimeAPI(String id) {
+    public synchronized void reprimeAPI(String id) {
         String userRefreshToken = mongoClient.retrieveRefreshToken(id);
         String userAccessToken = mongoClient.retrieveAccessToken(id);
         long tokenLifetime = mongoClient.retrieveTokenLifetime(id);
