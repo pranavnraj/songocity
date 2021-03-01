@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { useState }  from "react";
 import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
@@ -23,18 +23,20 @@ import axios from "axios";
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
 import { 
-  Container, 
-  ListGroup, 
-  ListGroupItem, 
+  Container,  
   Card, 
   CardHeader, 
   CardBody,
   Input
 } from "reactstrap";
+import FriendsList from "components/FriendsList";
 
 let ps = null;
 
 export default function FriendsPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  let friendList = []
+
   const getFriendsList = () => {
     return axios.get('http://localhost:8888/data/get_friend_list', {withCredentials: true});
   }
@@ -48,8 +50,14 @@ export default function FriendsPage() {
       console.log(error.response);
     });
   }
-  
-  let friendList = []
+
+  const getInput = (e) => {
+    setSearchTerm(e.target.value)
+  }
+
+  const dynamicSearch = () => {
+    return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
+  }
 
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
@@ -73,43 +81,13 @@ export default function FriendsPage() {
       document.body.classList.toggle("profile-page");
     };
   },[]);
-  
-  const listItemStyle = {
-    color: "black", 
-    fontFamily: "nucleo", 
-    fontWeight: "bold", 
-    fontSize: "20px"
-  }
 
   const searchBarStyle = {
     borderColor: "#Ad2dca",
     borderWidth: "2px",
     color: "white"
   }
-  
-  const FriendsList = () => {
-    if(friendList.length > 0) {
-      return (
-        <ListGroup>
-          {friendList.map(function (item) { 
-            return (
-              <ListGroupItem style={listItemStyle}>
-                <img
-                alt="..."
-                className="img-fluid rounded-circle shadow"
-                src={require("assets/img/ryan.jpg").default}
-                style={{ width: "50px", margin: "10px"}}
-                />
-                {item}
-              </ListGroupItem>
-            )
-          })}
-        </ListGroup>
-      );
-    } else {
-      return <p>You currently don't have any friend on Spotify. </p>
-    }
-  }
+
   return (
     <>
       <IndexNavbar />
@@ -129,10 +107,16 @@ export default function FriendsPage() {
               <Card color="default">
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
-                  <Input placeholder="Search for a friend" style={searchBarStyle}/>
+                  <Input 
+                    type="text"
+                    placeholder="Search for a friend" 
+                    style={searchBarStyle}
+                    value={searchTerm}
+                    onChange={getInput}
+                  />
                 </CardHeader>
                 <CardBody>
-                  <FriendsList />
+                  <FriendsList names={dynamicSearch()} keyword={searchTerm}/>
                 </CardBody>
               </Card>
             </Container>
