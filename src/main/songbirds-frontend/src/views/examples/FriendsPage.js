@@ -22,7 +22,15 @@ import PerfectScrollbar from "perfect-scrollbar";
 import axios from "axios";
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
-import { Container, ListGroup, ListGroupItem, Card, CardHeader, CardBody} from "reactstrap";
+import { 
+  Container, 
+  ListGroup, 
+  ListGroupItem, 
+  Card, 
+  CardHeader, 
+  CardBody,
+  Input
+} from "reactstrap";
 
 let ps = null;
 
@@ -72,6 +80,12 @@ export default function FriendsPage() {
     fontWeight: "bold", 
     fontSize: "20px"
   }
+
+  const searchBarStyle = {
+    borderColor: "#Ad2dca",
+    borderWidth: "2px",
+    color: "white"
+  }
   
   const FriendsList = () => {
     if(friendList.length > 0) {
@@ -115,6 +129,7 @@ export default function FriendsPage() {
               <Card color="default">
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
+                  <Input placeholder="Search for a friend" style={searchBarStyle}/>
                 </CardHeader>
                 <CardBody>
                   <FriendsList />
