@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ListGroupItem } from 'reactstrap'
+import { Button, ListGroupItem } from 'reactstrap'
 
 const listItemStyle = {
     color: "black", 
@@ -19,6 +19,9 @@ class FriendEntry extends Component {
                 style={{ width: "50px", margin: "10px"}}
                 />
                 {this.props.name}
+                <div style={{float: "right", margin: "10px"}}>
+                    <Button color="danger">Delete</Button>
+                </div>
             </ListGroupItem>
         )
     }
