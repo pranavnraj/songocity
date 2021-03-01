@@ -109,7 +109,7 @@ export default function FriendsPage() {
                   <h4 className="title">Friends List</h4>
                   <Input 
                     type="text"
-                    placeholder="Search for a friend" 
+                    placeholder="Search for a current friend" 
                     style={searchBarStyle}
                     value={searchTerm}
                     onChange={getInput}
