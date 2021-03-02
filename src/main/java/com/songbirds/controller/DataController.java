@@ -56,7 +56,7 @@ public class DataController {
     public ResponseEntity<String> getProfileInfo(HttpServletRequest request, HttpSession session, @CookieValue(value = "SESSION",
             defaultValue = "session_cookie") String sessionCookie){
 
-        request.changeSessionId();
+        //request.changeSessionId();
         HashMap<String, String> userInfo = api.currentUserAPI(session.getAttribute("user_id").toString());
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
