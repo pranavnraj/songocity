@@ -80,8 +80,8 @@ export default function IndexNavbar() {
       .getElementById("download-section")
       .scrollIntoView({ behavior: "smooth" });
   };
-  const getSpotifyLogin = () => {
-    return axios.get('http://localhost:8888/login', {withCredentials: true});
+  const getSpotifyLogin = (csrfStateValue) => {
+    return axios.get('http://localhost:8888/login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
   const logout = () => {
     return axios.get('http://localhost:8888/logout', {withCredentials: true});
@@ -91,9 +91,10 @@ export default function IndexNavbar() {
   }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
+      var csrfStateValue = Math.random().toString(36).slice(2);
       window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
-      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email")
-      getSpotifyLogin().then((response) => {
+      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email&state=" + csrfStateValue)
+      getSpotifyLogin(csrfStateValue).then((response) => {
         context.setAuthText("Log out");
         context.setDisplay(true);
       })
