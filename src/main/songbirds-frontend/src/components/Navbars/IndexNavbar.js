@@ -89,11 +89,14 @@ export default function IndexNavbar() {
   const train = () => {
       return axios.get('http://localhost:8888/data/train', {withCredentials: true});
   }
+  const recommend = () => {
+      return axios.get('http://localhost:8888/data/recommend', {withCredentials: true});
+  }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
       var csrfStateValue = Math.random().toString(36).slice(2);
       window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
-      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email&state=" + csrfStateValue)
+      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private&state=" + csrfStateValue)
       getSpotifyLogin(csrfStateValue).then((response) => {
         context.setAuthText("Log out");
         context.setDisplay(true);
