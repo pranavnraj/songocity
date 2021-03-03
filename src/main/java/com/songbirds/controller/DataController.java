@@ -125,9 +125,9 @@ public class DataController {
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
-    @RequestMapping(value = "/reccomender", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/recommend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
+    public ResponseEntity<Friends> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
 
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
 
@@ -136,15 +136,17 @@ public class DataController {
         friendIDJson.put("friends", friends.getFriendIDs());
 
         HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
-        ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<Friends> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, Friends.class);
+
+        Friends friendRecs = responseEntity.getBody();
 
         // TODO convert from responseEntity body to arraylist/array of strings
-        ArrayList<String> track_URIs = new ArrayList<String>();
+        List<String> track_URIs = friendRecs.getFriendIDs();
         String playlistID = api.createPlaylist(session.getAttribute("user_id").toString(), friends.getFriendIDs().toString() + "Playlist");
 
         String[] trackURIs = new String[track_URIs.size()];
         for(int i = 0; i < track_URIs.size(); i += 1) {
-            trackURIs[i] = track_URIs.get(i);
+            trackURIs[i] = "spotify:track:" + track_URIs.get(i);
         }
 
         api.addTracksToPlaylist(playlistID, trackURIs);
@@ -156,7 +158,7 @@ public class DataController {
 
     @RequestMapping(value = "/train", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity generateTrainingData(HttpSession session) throws FileNotFoundException {
+    public ResponseEntity generateTrainingDataAndTrainModel(HttpSession session) throws FileNotFoundException {
 
         LOGGER.log(Level.INFO, "Generating training data");
 
@@ -181,7 +183,13 @@ public class DataController {
         outRec.println(genreJson);
         outRec.flush();
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        JSONObject iDJson = new JSONObject();
+        iDJson.put("user_id", session.getAttribute("user_id").toString());
+
+        HttpEntity<String> requestEntity = new HttpEntity<String>(iDJson.toString(), headers);
+        ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/train", HttpMethod.POST, requestEntity, String.class);
+
+        return ResponseEntity.status(responseEntity.getStatusCode()).build();
 
     }
 
