@@ -44,7 +44,7 @@ export default function IndexNavbar() {
   const [color, setColor] = React.useState("navbar-transparent");
   const history = useHistory();
   const context = useContext(AppContext);
-  const clientID = "db69666057c14f1795515121f961890e";
+  const clientID = "3cceff6ff3144834b845505bcfab9cd7";
   const redirectURI = "http://localhost:8888/callback/";
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
