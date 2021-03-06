@@ -24,7 +24,7 @@ public class AuthController {
     private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @CrossOrigin(origins={"https://localhost:3000"}, allowCredentials = "true")
     public ResponseEntity login(@RequestParam(name="state") String state) {
 
         LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
@@ -46,7 +46,7 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @CrossOrigin(origins="https://localhost:3000", allowCredentials = "true")
     public ResponseEntity logout(HttpSession session) {
 
         LOGGER.log(Level.INFO, "User ID: " + session.getAttribute("user_id"));

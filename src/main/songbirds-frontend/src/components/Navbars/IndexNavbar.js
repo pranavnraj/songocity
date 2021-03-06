@@ -44,8 +44,8 @@ export default function IndexNavbar() {
   const [color, setColor] = React.useState("navbar-transparent");
   const history = useHistory();
   const context = useContext(AppContext);
-  const clientID = "db69666057c14f1795515121f961890e";
-  const redirectURI = "http://localhost:8888/callback/";
+  const clientID = "3cceff6ff3144834b845505bcfab9cd7";
+  const redirectURI = "https://localhost:8443/callback/";
   React.useEffect(() => {
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
@@ -84,7 +84,7 @@ export default function IndexNavbar() {
     return axios.get('http://localhost:8888/login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
   const logout = () => {
-    return axios.get('http://localhost:8888/logout', {withCredentials: true});
+    return axios.get('https://localhost:8443/logout', {withCredentials: true});
   }
   const train = () => {
       return axios.get('http://localhost:8888/data/train', {withCredentials: true});
