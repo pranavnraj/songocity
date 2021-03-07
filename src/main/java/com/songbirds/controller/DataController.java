@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.songbirds.app.MongoDBClient;
 import com.songbirds.app.SpotifyWebAPI;
+import com.songbirds.concurrency.SongbirdExecutorService;
+import com.songbirds.concurrency.TrainRunnable;
 import com.songbirds.objects.Friend;
 import com.songbirds.objects.Friends;
 import com.songbirds.util.AppConstants;
@@ -22,6 +24,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -140,7 +143,6 @@ public class DataController {
 
         Friends friendRecs = responseEntity.getBody();
 
-        // TODO convert from responseEntity body to arraylist/array of strings
         List<String> track_URIs = friendRecs.getFriendIDs();
         String playlistID = api.createPlaylist(session.getAttribute("user_id").toString(), friends.getFriendIDs().toString() + "Playlist");
 
@@ -191,6 +193,18 @@ public class DataController {
 
         return ResponseEntity.status(responseEntity.getStatusCode()).build();
 
+    }
+
+    @RequestMapping(value = "/train_threaded", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity generateTrainingDataAndTrainModelThreaded(HttpSession session) throws FileNotFoundException {
+
+        ExecutorService service = SongbirdExecutorService.getExecutorService();
+        TrainRunnable trainRunnable = new TrainRunnable(session.getAttribute("user_id").toString(), headers);
+
+        service.submit(trainRunnable);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 }
