@@ -118,14 +118,23 @@ public class DataController {
 
     @RequestMapping(value = "/get_playlist_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> getPlayListList(HttpSession session, @CookieValue(value = "SESSION",
-            defaultValue = "session_cookie") String sessionCookie) {
+    public ResponseEntity<String> getPlayListList(HttpSession session) {
         List<String> playlistList = mongoClient.getPlaylistList(session.getAttribute("user_id").toString());
 
         JSONObject obj = new JSONObject();
-        obj.put("friends", playlistList.toArray());
+        obj.put("playlists", playlistList.toArray());
 
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+    }
+
+    @RequestMapping(value = "/remove_playlist", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity removePlaylist(@RequestParam(name="playlistID") String playlistID, HttpSession session) {
+
+        mongoClient.deletePlaylist(session.getAttribute("user_id").toString(), playlistID);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+
     }
 
     @RequestMapping(value = "/recommend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -152,6 +161,7 @@ public class DataController {
         }
 
         api.addTracksToPlaylist(playlistID, trackURIs);
+        mongoClient.addNewPlaylist(session.getAttribute("user_id").toString(), playlistID);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }

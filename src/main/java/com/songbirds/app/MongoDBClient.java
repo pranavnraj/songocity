@@ -56,8 +56,7 @@ public class MongoDBClient {
     }
 
     public List<String> getFriendList(String id) {
-        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
-        Document doc = collection.find(eq("_id", id)).first();
+        Document doc = friendListExists(id);
 
         if(doc == null) {
             return new ArrayList<String>();
@@ -225,6 +224,11 @@ public class MongoDBClient {
         return playlistList;
     }
 
+    public void deletePlaylist(String userId, String deletedPlaylistID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
+
+        collection.updateOne(eq("_id", userId), pull("playlists", deletedPlaylistID));
+    }
 
 
 
