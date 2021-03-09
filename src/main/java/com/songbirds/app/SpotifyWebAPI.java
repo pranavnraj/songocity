@@ -30,10 +30,7 @@ import com.wrapper.spotify.requests.data.users_profile.GetCurrentUsersProfileReq
 import org.apache.hc.core5.http.ParseException;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
@@ -491,17 +488,16 @@ public class SpotifyWebAPI {
                 else
                     LOGGER.log(Level.SEVERE, "Null Snapshot ID");
 
-
             } catch (IOException | SpotifyWebApiException | ParseException e) {
                 LOGGER.log(Level.SEVERE,"Error: " + e.getMessage());
                 e.printStackTrace();
             }
         }
-
     }
 
-
     public synchronized String storeTokensUponLogin(String authCode) {
+
+        this.initializeAPI();
         String id = "";
 
         AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(authCode).build();

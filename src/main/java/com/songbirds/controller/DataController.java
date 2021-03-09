@@ -122,7 +122,11 @@ public class DataController {
         List<String> playlistList = mongoClient.getPlaylistList(session.getAttribute("user_id").toString());
 
         JSONObject obj = new JSONObject();
-        obj.put("playlists", playlistList.toArray());
+
+        for (String playListID: playlistList) {
+            HashMap<String, String> tracks = api.getTracks(playListID);
+            obj.put(playListID, tracks.values());
+        }
 
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
