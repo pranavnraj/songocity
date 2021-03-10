@@ -71,7 +71,7 @@ public class DataController {
 
     @RequestMapping(value = "/query_friend", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query) {
+    public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query, HttpSession session) {
 
         List<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
 

@@ -41,6 +41,13 @@ public class MongoDBClient {
         return mongoDBClient;
     }
 
+    public Document sessionCookieExists(String sessionID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.SESSIONS_COLLECTION);
+        Document doc = collection.find(eq("_id", sessionID)).first();
+
+        return doc;
+    }
+
     public Document getProfile(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
         Document doc = collection.find(eq("_id", id)).first();
