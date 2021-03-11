@@ -1,4 +1,4 @@
-package com.songbirds;
+package com.songbirds.filters;
 
 import com.songbirds.app.MongoDBClient;
 import com.songbirds.util.MutableHttpServletRequest;
