@@ -35,7 +35,9 @@ public class AuthController {
 
         synchronized (currentLoginThreadLock) {
             try {
-                currentLoginThreadLock.wait();
+                while(!currentLoginThreadLock.isRdyFlag()) {
+                    currentLoginThreadLock.wait();
+                }
             } catch (InterruptedException e) {
                 System.out.println(e.getMessage());
             }
@@ -86,7 +88,9 @@ public class AuthController {
             if (mongoClient.getProfile(userInfo.get("id")) == null) {
                 mongoClient.createNewProfile(userInfo);
             }
-            currentLoginThreadLock.notify();
+
+            currentLoginThreadLock.setRdyFlag();
+            currentLoginThreadLock.notifyAll();
         }
 
         JSONObject obj = new JSONObject();
