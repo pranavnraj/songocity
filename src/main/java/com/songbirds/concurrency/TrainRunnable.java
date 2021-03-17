@@ -6,19 +6,19 @@ import com.google.gson.JsonObject;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.objects.Friends;
 import com.songbirds.util.AppConstants;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
 import org.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.concurrent.Callable;
 import java.util.logging.Level;
 
-public class TrainRunnable implements Runnable{
+public class TrainRunnable implements Callable {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private RestTemplate rest = new RestTemplate();
@@ -32,11 +32,15 @@ public class TrainRunnable implements Runnable{
     }
 
     @Override
-    public void run() {
+    public HttpStatus call() {
         //LOGGER.log(Level.INFO, "Generating training data");
 
-        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo =
-                api.generateUserData(userID);
+        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = null;
+        try {
+            playlistsInfo = api.generateUserData(userID);
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
         int numTracks = api.getNumTracks(playlistsInfo);
 
         Gson gson = new GsonBuilder().create();
@@ -52,7 +56,13 @@ public class TrainRunnable implements Runnable{
         out.flush();
 
         HashMap<String,String> genres = api.getRecommendations(numTracks/126);
-        HashMap<String,HashMap<String,Float>> genreInfo = api.getTracksInfo(genres);
+
+        HashMap<String, HashMap<String, Float>> genreInfo = null;
+        try {
+            genreInfo = api.getTracksInfo(genres);
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
@@ -72,6 +82,6 @@ public class TrainRunnable implements Runnable{
         HttpEntity<String> requestEntity = new HttpEntity<String>(iDJson.toString(), headers);
         ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/train", HttpMethod.POST, requestEntity, String.class);
 
-        //return ResponseEntity.status(responseEntity.getStatusCode()).build();
+        return responseEntity.getStatusCode();
     }
 }
