@@ -11,11 +11,14 @@ import com.songbirds.objects.Friend;
 import com.songbirds.objects.Friends;
 import com.songbirds.util.AppConstants;
 import com.songbirds.util.HttpClientHandler;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
 import org.json.JSONObject;
 import org.springframework.http.*;
 
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.FileNotFoundException;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -60,7 +64,14 @@ public class DataController {
             defaultValue = "session_cookie") String sessionCookie){
 
         //request.changeSessionId();
-        HashMap<String, String> userInfo = api.currentUserAPI(session.getAttribute("user_id").toString());
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+        HashMap<String, String> userInfo = api.currentUserAPI(user_id);
+
         JSONObject obj = new JSONObject();
         obj.put("id", userInfo.get("id"));
         obj.put("display_name", userInfo.get("display_name"));
@@ -85,7 +96,14 @@ public class DataController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> addFriend(@RequestBody Friend friend, HttpSession session) {
 
-        String flag = mongoClient.addFriend(session.getAttribute("user_id").toString(), friend.getFriend());
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        String flag = mongoClient.addFriend(user_id, friend.getFriend());
 
         JSONObject obj = new JSONObject();
         obj.put("status", flag);
@@ -98,7 +116,14 @@ public class DataController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity removeFriend(@RequestParam(name="friend") String friend, HttpSession session) {
 
-        mongoClient.deleteFriend(session.getAttribute("user_id").toString(), friend);
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        mongoClient.deleteFriend(user_id, friend);
 
         return ResponseEntity.status(HttpStatus.OK).build();
 
@@ -108,7 +133,15 @@ public class DataController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> getFriendList(HttpSession session, @CookieValue(value = "SESSION",
             defaultValue = "session_cookie") String sessionCookie) {
-        List<String> friendList = mongoClient.getFriendList(session.getAttribute("user_id").toString());
+
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        List<String> friendList = mongoClient.getFriendList(user_id);
 
         JSONObject obj = new JSONObject();
         obj.put("friends", friendList.toArray());
@@ -119,7 +152,15 @@ public class DataController {
     @RequestMapping(value = "/get_playlist_list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> getPlayListList(HttpSession session) {
-        List<String> playlistList = mongoClient.getPlaylistList(session.getAttribute("user_id").toString());
+
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        List<String> playlistList = mongoClient.getPlaylistList(user_id);
 
         JSONObject obj = new JSONObject();
 
@@ -135,7 +176,14 @@ public class DataController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity removePlaylist(@RequestParam(name="playlistID") String playlistID, HttpSession session) {
 
-        mongoClient.deletePlaylist(session.getAttribute("user_id").toString(), playlistID);
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        mongoClient.deletePlaylist(user_id, playlistID);
 
         return ResponseEntity.status(HttpStatus.OK).build();
 
@@ -143,21 +191,33 @@ public class DataController {
 
     @RequestMapping(value = "/recommend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<Friends> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
+    public ResponseEntity generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
+
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
 
         LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
 
         JSONObject friendIDJson = new JSONObject();
-        friendIDJson.put("user_id", session.getAttribute("user_id").toString());
+        friendIDJson.put("user_id", user_id);
         friendIDJson.put("friends", friends.getFriendIDs());
 
         HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
-        ResponseEntity<Friends> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, Friends.class);
+        ResponseEntity<Friends> responseEntity = null;
+        try {
+            responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, Friends.class);
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Machine Learning Server Unavailable");
+        }
 
         Friends friendRecs = responseEntity.getBody();
 
         List<String> track_URIs = friendRecs.getFriendIDs();
-        String playlistID = api.createPlaylist(session.getAttribute("user_id").toString(), friends.getFriendIDs().toString() + "Playlist");
+        String playlistID = api.createPlaylist(user_id, friends.getFriendIDs().toString() + "Playlist2");
 
         String[] trackURIs = new String[track_URIs.size()];
         for(int i = 0; i < track_URIs.size(); i += 1) {
@@ -165,7 +225,7 @@ public class DataController {
         }
 
         api.addTracksToPlaylist(playlistID, trackURIs);
-        mongoClient.addNewPlaylist(session.getAttribute("user_id").toString(), playlistID);
+        mongoClient.addNewPlaylist(user_id, playlistID);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }
@@ -176,34 +236,61 @@ public class DataController {
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
     public ResponseEntity generateTrainingDataAndTrainModel(HttpSession session) throws FileNotFoundException {
 
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
         LOGGER.log(Level.INFO, "Generating training data");
 
-        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo =
-                api.generateUserData(session.getAttribute("user_id").toString());
+        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = null;
+        try {
+            playlistsInfo = api.generateUserData(user_id);
+        } catch(ServiceUnavailableException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
+        } catch(SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
         int numTracks = api.getNumTracks(playlistsInfo);
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
         PrintWriter out = new PrintWriter("src/main/jupyter_notebooks/" +
-                session.getAttribute("user_id").toString() + ".txt");
+                user_id + ".txt");
         out.println(user);
         out.flush();
 
         HashMap<String,String> genres = api.getRecommendations(numTracks/126);
-        HashMap<String,HashMap<String,Float>> genreInfo = api.getTracksInfo(genres);
+
+        HashMap<String,HashMap<String,Float>> genreInfo = null;
+        try {
+            genreInfo = api.getTracksInfo(genres);
+        } catch (ServiceUnavailableException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
+        } catch(SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
         PrintWriter outRec = new PrintWriter("src/main/jupyter_notebooks/" +
-                session.getAttribute("user_id").toString() + "genres.txt");
+                user_id + "genres.txt");
         outRec.println(genreJson);
         outRec.flush();
 
         JSONObject iDJson = new JSONObject();
-        iDJson.put("user_id", session.getAttribute("user_id").toString());
+        iDJson.put("user_id", user_id);
 
         HttpEntity<String> requestEntity = new HttpEntity<String>(iDJson.toString(), headers);
-        ResponseEntity<String> responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/train", HttpMethod.POST, requestEntity, String.class);
+
+        ResponseEntity<String> responseEntity = null;
+        try {
+            responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/train", HttpMethod.POST, requestEntity, String.class);
+        } catch (ResourceAccessException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Machine Learning Server Unavailable");
+        }
 
         return ResponseEntity.status(responseEntity.getStatusCode()).build();
 
@@ -213,10 +300,17 @@ public class DataController {
     @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
     public ResponseEntity generateTrainingDataAndTrainModelThreaded(HttpSession session) throws FileNotFoundException {
 
-        ExecutorService service = SongbirdExecutorService.getExecutorService();
-        TrainRunnable trainRunnable = new TrainRunnable(session.getAttribute("user_id").toString(), headers);
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
-        service.submit(trainRunnable);
+        ExecutorService service = SongbirdExecutorService.getExecutorService();
+        TrainRunnable trainRunnable = new TrainRunnable(user_id, headers);
+
+        Future<HttpStatus> status = service.submit(trainRunnable);
 
         return ResponseEntity.status(HttpStatus.OK).build();
     }
