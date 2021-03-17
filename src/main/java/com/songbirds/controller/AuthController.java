@@ -49,7 +49,14 @@ public class AuthController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity logout(HttpSession session) {
 
-        LOGGER.log(Level.INFO, "User ID: " + session.getAttribute("user_id"));
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        LOGGER.log(Level.INFO, "User ID: " + user_id);
         session.invalidate();
 
         return ResponseEntity.status(HttpStatus.OK).build();
