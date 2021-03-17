@@ -2,6 +2,7 @@ package com.songbirds.app;
 
 import com.songbirds.util.LoginCredentialConstants;
 import com.songbirds.util.MongoDBConstants;
+import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
 import com.wrapper.spotify.model_objects.special.SnapshotResult;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
@@ -203,6 +204,7 @@ public class SpotifyWebAPI {
                 PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                 for (PlaylistTrack track : items) {
+                    //Date date = track.getAddedAt();
                     playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                 }
             }
@@ -224,7 +226,7 @@ public class SpotifyWebAPI {
         return numTracks;
     }
 
-    public HashMap<String, HashMap<String, Float>> getTracksInfo(HashMap<String,String> playlistTracks) {
+    public HashMap<String, HashMap<String, Float>> getTracksInfo(HashMap<String,String> playlistTracks) throws SpotifyWebApiException {
 
         String[] ids = playlistTracks.keySet().toArray(new String[0]);
         System.out.println(ids.length);
@@ -270,7 +272,7 @@ public class SpotifyWebAPI {
                         tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
                     }
                 }
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
+            } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
         }
@@ -431,7 +433,7 @@ public class SpotifyWebAPI {
         return recs;
     }
 
-    public HashMap<String, HashMap<String, HashMap<String, Float>>>  generateUserData(String user_id) {
+    public HashMap<String, HashMap<String, HashMap<String, Float>>>  generateUserData(String user_id) throws SpotifyWebApiException{
         HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = new HashMap<String, HashMap<String, HashMap<String, Float>>>();
         HashMap<String, String> playlistInfo = currentUserPlaylists(user_id);
         for (String playlistId : playlistInfo.keySet()) {
