@@ -19,7 +19,7 @@ public class CheckAuthCookieFilter implements Filter {
     //private Logger logger = LoggerFactory.getLogger(getClass());
 
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
-    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/"));
+    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login"));
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)

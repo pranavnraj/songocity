@@ -23,15 +23,18 @@ public class AuthController {
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
     private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
 
+    @RequestMapping(value = "/prime_login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity primeLogin(@RequestParam(name="state") String state) {
+        LoginThreadLock.addToLoginLocks(new LoginThreadLock(state));
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity login(@RequestParam(name="state") String state) {
 
         LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
-        if (currentLoginThreadLock == null) {
-            currentLoginThreadLock = new LoginThreadLock(state);
-            LoginThreadLock.addToLoginLocks(currentLoginThreadLock);
-        }
 
         synchronized (currentLoginThreadLock) {
             try {
@@ -74,14 +77,7 @@ public class AuthController {
         String id = api.storeTokensUponLogin(code);
         HashMap<String, String> userInfo = api.currentUserAPI(id);
 
-        LoginThreadLock currentLoginThreadLock;
-        while(true) {
-            //System.out.println("In forever loop: " + state + "-----" + LoginThreadLock.loginThreadLocks.get(0).getStateID() + "-----" + LoginThreadLock.loginThreadLocks.get(1).getStateID());
-            currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
-            if(currentLoginThreadLock != null) {
-                break;
-            }
-        }
+        LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
 
         synchronized (currentLoginThreadLock) {
             session.setAttribute("user_id", id);
