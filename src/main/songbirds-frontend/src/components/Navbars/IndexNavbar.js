@@ -83,6 +83,9 @@ export default function IndexNavbar() {
   const getSpotifyLogin = (csrfStateValue) => {
     return axios.get('http://localhost:8888/login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
+  const primeLogin = (csrfStateValue) => {
+    return axios.get('http://localhost:8888/prime_login', { params: { state: csrfStateValue } }, {withCredentials: true});
+  }
   const logout = () => {
     return axios.get('http://localhost:8888/logout', {withCredentials: true});
   }
@@ -95,11 +98,16 @@ export default function IndexNavbar() {
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
       var csrfStateValue = Math.random().toString(36).slice(2);
-      window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
-      + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private&state=" + csrfStateValue)
-      getSpotifyLogin(csrfStateValue).then((response) => {
-        context.setAuthText("Log out");
-        context.setDisplay(true);
+      primeLogin(csrfStateValue).then((response1) => {
+              window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
+              + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private&state=" + csrfStateValue)
+              getSpotifyLogin(csrfStateValue).then((response2) => {
+                context.setAuthText("Log out");
+                context.setDisplay(true);
+              })
+              .catch((error) => {
+                console.log(error.response);
+              });
       })
       .catch((error) => {
         console.log(error.response);
