@@ -6,6 +6,7 @@ import java.util.List;
 public class LoginThreadLock {
 
     private String state;
+    private boolean rdyFlag = false;
     public static List<LoginThreadLock> loginThreadLocks = new ArrayList<LoginThreadLock>();
 
     public LoginThreadLock(String state) {
@@ -37,5 +38,11 @@ public class LoginThreadLock {
         loginThreadLocks.remove(lock);
     }
 
+    public void setRdyFlag() {
+        this.rdyFlag = true;
+    }
 
+    public boolean isRdyFlag() {
+        return rdyFlag;
+    }
 }
