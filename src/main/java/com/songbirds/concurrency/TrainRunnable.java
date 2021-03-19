@@ -55,7 +55,12 @@ public class TrainRunnable implements Callable {
         out.println(user);
         out.flush();
 
-        HashMap<String,String> genres = api.getRecommendations(numTracks/126);
+        HashMap<String, String> genres = null;
+        try {
+            genres = api.getRecommendations(numTracks / 126);
+        } catch (SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
 
         HashMap<String, HashMap<String, Float>> genreInfo = null;
         try {
