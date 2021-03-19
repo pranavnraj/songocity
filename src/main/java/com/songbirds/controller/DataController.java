@@ -13,6 +13,7 @@ import com.songbirds.util.AppConstants;
 import com.songbirds.util.HttpClientHandler;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
+import org.apache.juli.logging.Log;
 import org.json.JSONObject;
 import org.springframework.http.*;
 
@@ -246,6 +247,7 @@ public class DataController {
         LOGGER.log(Level.INFO, "Generating training data");
 
         HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = null;
+        // TODO Retry after wait period time
         try {
             playlistsInfo = api.generateUserData(user_id);
         } catch(ServiceUnavailableException e) {
@@ -262,8 +264,17 @@ public class DataController {
         out.println(user);
         out.flush();
 
-        HashMap<String,String> genres = api.getRecommendations(numTracks/126);
+        // TODO Retry after wait period time
+        HashMap<String, String> genres = null;
+        try {
+            genres = api.getRecommendations(numTracks / 126);
+        } catch(ServiceUnavailableException e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
+        } catch(SpotifyWebApiException e) {
+            e.printStackTrace();
+        }
 
+        // TODO Retry after wait period time
         HashMap<String,HashMap<String,Float>> genreInfo = null;
         try {
             genreInfo = api.getTracksInfo(genres);
@@ -279,6 +290,8 @@ public class DataController {
                 user_id + "genres.txt");
         outRec.println(genreJson);
         outRec.flush();
+
+        LOGGER.log(Level.INFO, "Finished collecting data and writing to file");
 
         JSONObject iDJson = new JSONObject();
         iDJson.put("user_id", user_id);
