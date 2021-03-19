@@ -3,6 +3,7 @@ package com.songbirds.app;
 import com.songbirds.util.LoginCredentialConstants;
 import com.songbirds.util.MongoDBConstants;
 import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
+import com.wrapper.spotify.exceptions.detailed.TooManyRequestsException;
 import com.wrapper.spotify.model_objects.special.SnapshotResult;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRefreshRequest;
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
@@ -237,43 +238,53 @@ public class SpotifyWebAPI {
             GetAudioFeaturesForSeveralTracksRequest getAudioFeaturesForSeveralTracksRequest = spotifyApi.getAudioFeaturesForSeveralTracks(subset_ids).build();
             GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi.getSeveralTracks(subset_ids).build();
 
-            try {
-                AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
-                Track[] tracks = getSeveralTracksRequest.execute();
+            while(true) {
+                try {
+                    AudioFeatures[] audioFeatures = getAudioFeaturesForSeveralTracksRequest.execute();
+                    Track[] tracks = getSeveralTracksRequest.execute();
 
-                for (int j = 0; j < audioFeatures.length; j++) {
-                    AudioFeatures trackInfo = audioFeatures[j];
-                    Track track = tracks[j];
-                    if (trackInfo != null) {
+                    for (int j = 0; j < audioFeatures.length; j++) {
+                        AudioFeatures trackInfo = audioFeatures[j];
+                        Track track = tracks[j];
+                        if (trackInfo != null) {
 
-                        int explicitFlag;
-                        if (track.getIsExplicit() == true) {
-                            explicitFlag = 1;
-                        } else {
-                            explicitFlag = 0;
+                            int explicitFlag;
+                            if (track.getIsExplicit() == true) {
+                                explicitFlag = 1;
+                            } else {
+                                explicitFlag = 0;
+                            }
+
+                            System.out.println(track.getId());
+                            System.out.println(track.getName());
+                            tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
+                            //tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
+                            //tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
+                            //tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
+                            tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
+                            tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
+                            tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
+                            tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
+                            tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
+                            tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
+                            tracksInfo.get(trackInfo.getId()).put("liveness", trackInfo.getLiveness());
+                            tracksInfo.get(trackInfo.getId()).put("loudness", trackInfo.getLoudness());
+                            tracksInfo.get(trackInfo.getId()).put("tempo", trackInfo.getTempo());
+                            tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
+                            tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
                         }
-
-                        System.out.println(track.getId());
-                        System.out.println(track.getName());
-                        tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
-                        //tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
-                        //tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
-                        //tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
-                        tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
-                        tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
-                        tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
-                        tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
-                        tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
-                        tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
-                        tracksInfo.get(trackInfo.getId()).put("liveness", trackInfo.getLiveness());
-                        tracksInfo.get(trackInfo.getId()).put("loudness", trackInfo.getLoudness());
-                        tracksInfo.get(trackInfo.getId()).put("tempo", trackInfo.getTempo());
-                        tracksInfo.get(trackInfo.getId()).put("timeSignature", trackInfo.getTimeSignature().floatValue());
-                        tracksInfo.get(trackInfo.getId()).put("valence", trackInfo.getValence());
                     }
+                    break;
+                } catch (TooManyRequestsException e) {
+                    LOGGER.log(Level.INFO, "Rate Limit: Pausing for a few seconds before trying again");
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException a) {
+                        a.printStackTrace();
+                    }
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
             }
         }
         return tracksInfo;
@@ -285,7 +296,7 @@ public class SpotifyWebAPI {
         return uniqueGenres;
     }
 
-    public HashMap<String, String> getRecommendations(int limit){
+    public HashMap<String, String> getRecommendations(int limit) throws SpotifyWebApiException {
         HashMap<String, String> recs = new HashMap<String,String>();
         String [] genres = {    "acoustic",
                 "afrobeat",
@@ -417,17 +428,25 @@ public class SpotifyWebAPI {
         for(String genre: genres) {
             GetRecommendationsRequest getRecommendationsRequest = spotifyApi.getRecommendations().seed_genres(genre).limit(limit).build();
 
-            try {
-                Recommendations recommendations = getRecommendationsRequest.execute();
-                TrackSimplified[] tracks = recommendations.getTracks();
+            while(true) {
+                try {
+                    Recommendations recommendations = getRecommendationsRequest.execute();
+                    TrackSimplified[] tracks = recommendations.getTracks();
 
-                for (TrackSimplified track : tracks) {
-                    recs.put(track.getId(), track.getName());
+                    for (TrackSimplified track : tracks) {
+                        recs.put(track.getId(), track.getName());
+                    }
+                    break;
+                } catch (TooManyRequestsException e) {
+                    LOGGER.log(Level.INFO, "Rate Limit: Pausing for a few seconds before trying again");
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException a) {
+                        a.printStackTrace();
+                    }
+                } catch (IOException |  ParseException e) {
+                    e.printStackTrace();
                 }
-
-            } catch (IOException | SpotifyWebApiException | ParseException e) {
-                e.printStackTrace();
-                System.out.println("Error: " + e.getMessage());
             }
         }
         return recs;
