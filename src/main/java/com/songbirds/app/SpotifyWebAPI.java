@@ -1,5 +1,6 @@
 package com.songbirds.app;
 
+import com.songbirds.util.AppConstants;
 import com.songbirds.util.LoginCredentialConstants;
 import com.songbirds.util.MongoDBConstants;
 import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
@@ -180,7 +181,7 @@ public class SpotifyWebAPI {
 
     public HashMap<String,String> getTracks(String playlistId){
         GetPlaylistsItemsRequest getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).build();
-        HashMap<String,String> playistTracks = new HashMap<String,String>();
+        HashMap<String,String> playlistTracks = new HashMap<String,String>();
         try{
             Paging<PlaylistTrack> playlistTrackPaging = getPlaylistsItemsRequest.execute();
 
@@ -188,7 +189,16 @@ public class SpotifyWebAPI {
                 PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                 for (PlaylistTrack track : items) {
-                    playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    // TODO Toggle between recency and all
+                    Date currentDate = new Date();
+                    Date trackDate = track.getAddedAt();
+                    LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
+                    LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
+                    LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
+                    if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
+                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    }
+                    //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                 }
             }else {
                 int offset = 0;
@@ -196,7 +206,7 @@ public class SpotifyWebAPI {
                     PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                     for (PlaylistTrack track : items) {
-                        playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                     }
                     offset += 100;
                     getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).offset(offset).build();
@@ -205,8 +215,16 @@ public class SpotifyWebAPI {
                 PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                 for (PlaylistTrack track : items) {
-                    //Date date = track.getAddedAt();
-                    playistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    // TODO Toggle between recency and all
+                    Date currentDate = new Date();
+                    Date trackDate = track.getAddedAt();
+                    LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
+                    LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
+                    LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
+                    if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
+                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    }
+                   //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                 }
             }
 
@@ -214,9 +232,9 @@ public class SpotifyWebAPI {
             System.out.print("Error: " + e.getMessage());
         }
 
-        System.out.println("Songs: " + playistTracks.size());
+        System.out.println("Songs: " + playlistTracks.size());
 
-        return playistTracks;
+        return playlistTracks;
     }
 
     public int getNumTracks(HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo){

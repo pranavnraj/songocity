@@ -100,7 +100,7 @@ export default function IndexNavbar() {
       var csrfStateValue = Math.random().toString(36).slice(2);
       primeLogin(csrfStateValue).then((response1) => {
               window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
-              + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private&state=" + csrfStateValue)
+              + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private%20playlist-read-private%20playlist-read-collaborative&state=" + csrfStateValue)
               getSpotifyLogin(csrfStateValue).then((response2) => {
                 context.setAuthText("Log out");
                 context.setDisplay(true);
