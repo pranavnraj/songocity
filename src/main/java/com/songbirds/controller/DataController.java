@@ -253,6 +253,7 @@ public class DataController {
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
+            System.out.println("Error");
             e.printStackTrace();
         }
         int numTracks = api.getNumTracks(playlistsInfo);
@@ -271,6 +272,7 @@ public class DataController {
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
+            System.out.println("Error");
             e.printStackTrace();
         }
 
@@ -281,6 +283,7 @@ public class DataController {
         } catch (ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
+            System.out.println("Error");
             e.printStackTrace();
         }
 
