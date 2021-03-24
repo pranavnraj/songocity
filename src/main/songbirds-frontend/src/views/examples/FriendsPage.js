@@ -20,6 +20,7 @@ import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
 import axios from "axios";
+import AsyncSelect from 'react-select/async';
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
 import { 
@@ -85,7 +86,8 @@ export default function FriendsPage() {
   const searchBarStyle = {
     borderColor: "#Ad2dca",
     borderWidth: "2px",
-    color: "white"
+    color: "white",
+    margin: 10
   }
 
   return (
@@ -107,6 +109,11 @@ export default function FriendsPage() {
               <Card color="default">
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
+                  <AsyncSelect
+                    isMulti
+                    cacheOptions
+                    defaultOptions
+                  />
                   <Input 
                     type="text"
                     placeholder="Search for a current friend" 
