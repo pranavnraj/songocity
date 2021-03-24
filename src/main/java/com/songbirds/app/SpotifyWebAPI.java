@@ -66,13 +66,14 @@ public class SpotifyWebAPI {
         return api;
     }
 
+    /*
     public synchronized void initializeAPI() {
         spotifyApi = new SpotifyApi.Builder()
                 .setClientId(LoginCredentialConstants.CLIENT_ID)
                 .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
                 .setRedirectUri(redirectURI)
                 .build();
-    }
+    }*/
 
     public synchronized HashMap<String, String> currentUserAPI(String id) {
         this.reprimeAPI(id);
@@ -536,21 +537,25 @@ public class SpotifyWebAPI {
 
     public synchronized String storeTokensUponLogin(String authCode) {
 
-        this.initializeAPI();
+        SpotifyApi tempSpotifyApi = new SpotifyApi.Builder()
+                .setClientId(LoginCredentialConstants.CLIENT_ID)
+                .setClientSecret(LoginCredentialConstants.CLIENT_SECRET)
+                .setRedirectUri(redirectURI)
+                .build();
         String id = "";
 
-        AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(authCode).build();
+        AuthorizationCodeRequest authorizationCodeRequest = tempSpotifyApi.authorizationCode(authCode).build();
         try {
             AuthorizationCodeCredentials authorizationCodeCredentials = authorizationCodeRequest.execute();
 
-            spotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
-            spotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
+            tempSpotifyApi.setAccessToken(authorizationCodeCredentials.getAccessToken());
+            tempSpotifyApi.setRefreshToken(authorizationCodeCredentials.getRefreshToken());
 
-            GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = spotifyApi.getCurrentUsersProfile().build();
+            GetCurrentUsersProfileRequest getCurrentUsersProfileRequest = tempSpotifyApi.getCurrentUsersProfile().build();
             User user = getCurrentUsersProfileRequest.execute();
             id = user.getId();
 
-            mongoClient.storeAccessAndRefreshTokens(id, spotifyApi.getAccessToken(), spotifyApi.getRefreshToken(),
+            mongoClient.storeAccessAndRefreshTokens(id, tempSpotifyApi.getAccessToken(), tempSpotifyApi.getRefreshToken(),
                     (long)authorizationCodeCredentials.getExpiresIn()*1000, System.currentTimeMillis());
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {

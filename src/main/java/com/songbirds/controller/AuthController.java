@@ -73,7 +73,7 @@ public class AuthController {
                                            @RequestParam(name="state") String state, HttpSession session) {
         LOGGER.setLevel(Level.INFO);
 
-        api.initializeAPI();
+        //api.initializeAPI();
         String id = api.storeTokensUponLogin(code);
         HashMap<String, String> userInfo = api.currentUserAPI(id);
 
