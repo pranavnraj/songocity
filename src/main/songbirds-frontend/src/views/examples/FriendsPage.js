@@ -36,10 +36,17 @@ let ps = null;
 
 export default function FriendsPage() {
   const [searchTerm, setSearchTerm] = useState('')
-  let friendList = []
+  let friendList = [] // store a list of current friends
 
   const getFriendsList = () => {
+    // Get a user's current friends
     return axios.get('http://localhost:8888/data/get_friend_list', {withCredentials: true});
+  }
+
+  const queryAllUsers = (query) => {
+    // Get all users that fit the query
+    const httpStr = 'http://localhost:8888/data/query_friend?id_query=' + query
+    return axios.get(httpStr, {withCredentials: true})
   }
 
   const populateFriendsList = () => {
@@ -52,22 +59,40 @@ export default function FriendsPage() {
     });
   }
 
-  const getInput = (e) => {
+  const getFriendsFromQuery = (query) => {
+    queryAllUsers(query).then((response) => {
+      let friends = []
+      response.data.queries.forEach((id) => {
+        friends.push({value: id, label: id})
+      })
+      console.log(friends)
+      return friends
+    })
+    .catch((error) => {
+      console.log(error.response);
+    });
+  }
+
+  const getCurrFriendInput = (e) => {
+    // Store user input in current friend search bar
     setSearchTerm(e.target.value)
   }
 
   const dynamicSearch = () => {
+    // Current friend query pattern matching
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
   }
 
-  const friendQuery = (inputValue) =>  {
-    // TODO: use http request to get a list based on query input
-  }
-
-  const loadOptions = (inputValue, callback) => {
-    setTimeout(() => {
-      callback(friendQuery(inputValue));
-    }, 1000)
+  const loadOptions = (inputValue) => {
+    // Async load list of users that fit the query
+    // setTimeout(() => {
+    //   callback(getFriendsFromQuery(inputValue));
+    // }, 1000)
+    new Promise(resolve => {
+      setTimeout(() => {
+        resolve(getFriendsFromQuery(inputValue));
+      }, 1000);
+    });
   }
 
   React.useEffect(() => {
@@ -120,6 +145,7 @@ export default function FriendsPage() {
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
                   <AsyncSelect
+                    placeholder="Enter friend ID to add more friends"
                     isMulti
                     cacheOptions
                     loadOptions={loadOptions}
@@ -132,14 +158,13 @@ export default function FriendsPage() {
                         primary: "#Ad2dca", 
                       }
                     })}
-
                   />
                   <Input 
                     type="text"
-                    placeholder="Search for a current friend" 
+                    placeholder="Search for a current friend based on username" 
                     style={searchBarStyle}
                     value={searchTerm}
-                    onChange={getInput}
+                    onChange={getCurrFriendInput}
                   />
                 </CardHeader>
                 <CardBody>
