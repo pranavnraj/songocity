@@ -60,6 +60,16 @@ export default function FriendsPage() {
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
   }
 
+  const friendQuery = (inputValue) =>  {
+    // TODO: use http request to get a list based on query input
+  }
+
+  const loadOptions = (inputValue, callback) => {
+    setTimeout(() => {
+      callback(friendQuery(inputValue));
+    }, 1000)
+  }
+
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
@@ -112,7 +122,17 @@ export default function FriendsPage() {
                   <AsyncSelect
                     isMulti
                     cacheOptions
+                    loadOptions={loadOptions}
                     defaultOptions
+                    theme={theme => ({
+                      ...theme,
+                      borderRadius: 5,
+                      colors: {
+                        ...theme.colors,
+                        primary: "#Ad2dca", 
+                      }
+                    })}
+
                   />
                   <Input 
                     type="text"
