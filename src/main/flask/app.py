@@ -10,7 +10,8 @@ import warnings
 warnings.filterwarnings('ignore')
 from sklearn import preprocessing
 from sklearn import svm
-
+import boto3
+import tempfile
 import pickle
 
 import PlaylistParser
@@ -37,9 +38,18 @@ def createRecommendation():
 
 	testing_data_X = testing_data.drop(columns = ['track'])
 
-	pkl_filename = user_id + ".pkl"
-	with open(pkl_filename, 'rb') as file:
-		lr = pickle.load(file)
+	s3 = boto3.client('s3')
+	bucket = 'songbirdsdata'
+	key = 'Models/' + user_id + '.pkl'
+
+	with tempfile.TemporaryFile() as fp:
+		s3.download_fileobj(Fileobj=fp, Bucket=bucket, Key=key)
+		fp.seek(0)
+		lr = pickle.load(fp)
+
+	#pkl_filename = user_id + ".pkl"
+	#with open(pkl_filename, 'rb') as file:
+	#	lr = pickle.load(file)
 
 	preds = lr.predict_proba(testing_data_X)
 
@@ -55,15 +65,15 @@ def trainModel():
 
 	#user_id = request.form.get('user_id')
 	user_id = request.get_json()['user_id']
-	print(user_id)
+	#print(user_id)
 
 	training_data, features = PlaylistParser.produceTrainingData(user_id)
-	print(training_data)
+	#print(training_data)
 
-	print("BREAK")
+	#print("BREAK")
 
 	genre_training_data = PlaylistParser.produceGenreTrainingData(user_id, training_data, features)
-	print(genre_training_data)
+	#print(genre_training_data)
 
 	combined_training_data = pd.concat([training_data,genre_training_data],ignore_index=True)
 
@@ -75,9 +85,15 @@ def trainModel():
 	y = combined_training_data['inPlaylist']
 	lr = LogisticRegressionCV(cv=5, random_state=42).fit(X, y)
 
-	pkl_filename = user_id + ".pkl"
-	with open(pkl_filename, 'wb') as file:
-		pickle.dump(lr, file)
+	s3 = boto3.client('s3')
+	bucket = 'songbirdsdata'
+	key = 'Models/' + user_id + '.pkl'
+
+	with tempfile.TemporaryFile() as fp:
+		pickle.dump(lr, fp)
+		fp.seek(0)
+		s3.put_object(Body=fp.read(), Bucket=bucket, Key=key)
+
 
 	return jsonify(lr.score(X, y)),200
 
