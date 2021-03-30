@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.http.HttpResponse;
@@ -264,14 +265,16 @@ public class DataController {
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
-        String fileName = "data/" + user_id + ".txt";
+        String fileName = "./" + user_id + ".txt";
         PrintWriter out = new PrintWriter(fileName);
         out.println(user);
         out.flush();
 
         s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_KEY_PREFIX, fileName);
 
-        // TODO Retry after wait period time
+        File file = new File(fileName);
+        file.delete();
+
         HashMap<String, String> genres = null;
         try {
             genres = api.getRecommendations(numTracks / 126);
@@ -282,7 +285,6 @@ public class DataController {
             e.printStackTrace();
         }
 
-        // TODO Retry after wait period time
         HashMap<String,HashMap<String,Float>> genreInfo = null;
         try {
             genreInfo = api.getTracksInfo(genres);
@@ -295,12 +297,15 @@ public class DataController {
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
-        fileName = "data/" + user_id + "genres.txt";
+        fileName = "./" + user_id + "genres.txt";
         PrintWriter outRec = new PrintWriter(fileName);
         outRec.println(genreJson);
         outRec.flush();
 
         s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_GENRE_KEY_PREFIX, fileName);
+
+        file = new File(fileName);
+        file.delete();
 
         LOGGER.log(Level.INFO, "Finished collecting data and writing to file");
 
