@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.songbirds.app.MongoDBClient;
+import com.songbirds.app.S3AwsClient;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.concurrency.SongbirdExecutorService;
 import com.songbirds.concurrency.TrainRunnable;
 import com.songbirds.objects.Friend;
 import com.songbirds.objects.Friends;
+import com.songbirds.util.AWSClientConstants;
 import com.songbirds.util.AppConstants;
 import com.songbirds.util.HttpClientHandler;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -42,6 +44,8 @@ public class DataController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
+    private S3AwsClient s3AwsClient = S3AwsClient.getInstance();
+
     private static RestTemplate rest = new RestTemplate();
     private static HttpHeaders headers = new HttpHeaders();
     static {
@@ -260,10 +264,12 @@ public class DataController {
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
-        PrintWriter out = new PrintWriter("src/main/jupyter_notebooks/" +
-                user_id + ".txt");
+        String fileName = "data/" + user_id + ".txt";
+        PrintWriter out = new PrintWriter(fileName);
         out.println(user);
         out.flush();
+
+        s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_KEY_PREFIX, fileName);
 
         // TODO Retry after wait period time
         HashMap<String, String> genres = null;
@@ -289,10 +295,12 @@ public class DataController {
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
-        PrintWriter outRec = new PrintWriter("src/main/jupyter_notebooks/" +
-                user_id + "genres.txt");
+        fileName = "data/" + user_id + "genres.txt";
+        PrintWriter outRec = new PrintWriter(fileName);
         outRec.println(genreJson);
         outRec.flush();
+
+        s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_GENRE_KEY_PREFIX, fileName);
 
         LOGGER.log(Level.INFO, "Finished collecting data and writing to file");
 
