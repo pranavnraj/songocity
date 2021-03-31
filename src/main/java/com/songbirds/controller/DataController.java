@@ -225,6 +225,8 @@ public class DataController {
         List<String> track_URIs = friendRecs.getFriendIDs();
         String playlistID = api.createPlaylist(user_id, friends.getFriendIDs().toString() + "Playlist2");
 
+        track_URIs = api.getFilteredTracks(track_URIs);
+
         String[] trackURIs = new String[track_URIs.size()];
         for(int i = 0; i < track_URIs.size(); i += 1) {
             trackURIs[i] = "spotify:track:" + track_URIs.get(i);
