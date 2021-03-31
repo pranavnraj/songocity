@@ -15,11 +15,12 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useState }  from "react";
+import React, { useState, useRef }  from "react";
 import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
 import axios from "axios";
+import waterfall from 'async/waterfall';
 import AsyncSelect from 'react-select/async';
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
@@ -39,6 +40,8 @@ let ps = null;
 
 export default function FriendsPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedUsers, setSelectedUsers] = useState([])
+  const currFriends = useRef(null)
   let friendList = [] // store a list of current friends
 
   const getFriendsList = () => {
@@ -70,6 +73,34 @@ export default function FriendsPage() {
   const dynamicSearch = () => {
     // Current friend query pattern matching
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
+  }
+
+  const addFriends = () => {
+    waterfall([
+      function(callback) {
+        selectedUsers.forEach(selection => {
+          const friendId = selection.value
+          axios.post('http://localhost:8888/data/add_friend', {
+            "friend": friendId,
+          }, {withCredentials: true})
+          .then((response) => {
+            console.log(response)
+          })
+          .catch((error) => {
+            console.log(error.response)
+          })
+        })
+        callback(null)
+      },
+      function(callback) {
+        friendList = populateFriendsList()
+        callback(null)
+      },
+      function(callback) {
+        console.log(friendList)
+        // currFriends.name = dynamicSearch()
+      }
+    ])
   }
 
   const loadOptions = (inputValue, callback) => {
@@ -171,6 +202,7 @@ export default function FriendsPage() {
                           cacheOptions
                           loadOptions={loadOptions}
                           defaultOptions
+                          onChange={setSelectedUsers}
                           styles={selectStyle}
                           theme={theme => ({
                             ...theme,
@@ -188,6 +220,7 @@ export default function FriendsPage() {
                           color="danger" 
                           type="button"
                           size="sm"
+                          onClick={addFriends}
                         > Add to Friends
                         </Button>
                       </Col>
@@ -202,7 +235,11 @@ export default function FriendsPage() {
                   />
                 </CardHeader>
                 <CardBody>
-                  <FriendsList names={dynamicSearch()} keyword={searchTerm}/>
+                  <FriendsList
+                    ref={currFriends} 
+                    names={dynamicSearch()} 
+                    keyword={searchTerm}
+                  />
                 </CardBody>
               </Card>
             </Container>
