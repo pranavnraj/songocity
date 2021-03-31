@@ -59,20 +59,6 @@ export default function FriendsPage() {
     });
   }
 
-  const getFriendsFromQuery = (query) => {
-    queryAllUsers(query).then((response) => {
-      let friends = []
-      response.data.queries.forEach((id) => {
-        friends.push({value: id, label: id})
-      })
-      console.log(friends)
-      return friends
-    })
-    .catch((error) => {
-      console.log(error.response);
-    });
-  }
-
   const getCurrFriendInput = (e) => {
     // Store user input in current friend search bar
     setSearchTerm(e.target.value)
@@ -83,16 +69,28 @@ export default function FriendsPage() {
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
   }
 
-  const loadOptions = (inputValue) => {
+  const loadOptions = (inputValue, callback) => {
     // Async load list of users that fit the query
-    // setTimeout(() => {
-    //   callback(getFriendsFromQuery(inputValue));
-    // }, 1000)
-    new Promise(resolve => {
-      setTimeout(() => {
-        resolve(getFriendsFromQuery(inputValue));
-      }, 1000);
-    });
+    setTimeout(() => {
+      queryAllUsers(inputValue).then((response) => {
+        if(!inputValue) {
+          return callback([])
+        }
+        let friends = response.data.queries
+        if(!friends) {
+          return callback([])
+        }
+        friends.map(id => ({
+          value: id, 
+          label: id
+        }))
+        callback(friends)
+      })
+      .catch((error) => {
+        console.log(error.response);
+        callback([])
+      });
+    }, 1000)
   }
 
   React.useEffect(() => {
