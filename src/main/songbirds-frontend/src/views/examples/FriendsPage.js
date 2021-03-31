@@ -28,7 +28,10 @@ import {
   Card, 
   CardHeader, 
   CardBody,
-  Input
+  Input,
+  Row,
+  Col,
+  Button
 } from "reactstrap";
 import FriendsList from "components/FriendsList";
 
@@ -80,10 +83,11 @@ export default function FriendsPage() {
         if(!friends) {
           return callback([])
         }
-        friends.map(id => ({
+        friends = friends.map(id => ({
           value: id, 
           label: id
         }))
+        console.log(friends)
         callback(friends)
       })
       .catch((error) => {
@@ -123,6 +127,22 @@ export default function FriendsPage() {
     margin: 10
   }
 
+  const selectStyle = {
+    option: provided => ({
+      ...provided,
+      color: "black"
+    }),
+    control: provided => ({
+      ...provided,
+      color: "black",
+      width: "100%",
+    }),
+    singleValue: provided => ({
+      ...provided,
+      color: "black"
+    }),
+  }
+
   return (
     <>
       <IndexNavbar />
@@ -142,21 +162,37 @@ export default function FriendsPage() {
               <Card color="default">
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
-                  <AsyncSelect
-                    placeholder="Enter friend ID to add more friends"
-                    isMulti
-                    cacheOptions
-                    loadOptions={loadOptions}
-                    defaultOptions
-                    theme={theme => ({
-                      ...theme,
-                      borderRadius: 5,
-                      colors: {
-                        ...theme.colors,
-                        primary: "#Ad2dca", 
-                      }
-                    })}
-                  />
+                  <Container fluid>
+                    <Row>
+                      <Col xs={9} md={10}>
+                        <AsyncSelect
+                          placeholder="Enter friend ID to add more friends"
+                          isMulti
+                          cacheOptions
+                          loadOptions={loadOptions}
+                          defaultOptions
+                          styles={selectStyle}
+                          theme={theme => ({
+                            ...theme,
+                            borderRadius: 5,
+                            colors: {
+                              ...theme.colors,
+                              primary: "#Ad2dca", 
+                            }
+                          })}
+                        />
+                      </Col>
+                      <Col xs={3} md={2}>
+                        <Button 
+                          className="btn-round" 
+                          color="danger" 
+                          type="button"
+                          size="sm"
+                        > Add to Friends
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Container>
                   <Input 
                     type="text"
                     placeholder="Search for a current friend based on username" 
