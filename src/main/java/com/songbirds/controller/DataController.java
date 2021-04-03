@@ -223,7 +223,8 @@ public class DataController {
         Friends friendRecs = responseEntity.getBody();
 
         List<String> track_URIs = friendRecs.getFriendIDs();
-        String playlistID = api.createPlaylist(user_id, friends.getFriendIDs().toString() + "Playlist2");
+        String title = friends.getFriendIDs().toString() + "Playlist";
+        String playlistID = api.createPlaylist(user_id, title);
 
         track_URIs = api.getFilteredTracks(track_URIs);
 

@@ -88,6 +88,7 @@ public class AuthController {
 
         synchronized (currentLoginThreadLock) {
             session.setAttribute("user_id", id);
+            session.setAttribute("name", userInfo.get("display_name"));
             if (mongoClient.getProfile(userInfo.get("id")) == null) {
                 mongoClient.createNewProfile(userInfo);
             }
