@@ -193,9 +193,9 @@ public class SpotifyWebAPI {
                     // TODO Toggle between recency and all
                     Date currentDate = new Date();
                     Date trackDate = track.getAddedAt();
-                    LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
-                    LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
-                    LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
+                    //LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
+                    //LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
+                    //LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
                     if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
                         playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                     }
@@ -244,6 +244,41 @@ public class SpotifyWebAPI {
             numTracks += playlistsInfo.get(playlist).keySet().size();
         }
         return numTracks;
+    }
+
+    public List<String> getFilteredTracks(List<String> track_uris) {
+        HashMap<String, String> filteredList = new HashMap<String, String>();
+
+        String[] ids = track_uris.toArray(new String[0]);
+
+        LOGGER.log(Level.INFO, "Track URIS prefiltered: " + track_uris.toString());
+
+        for(int i = 0; i < ids.length; i += 50) {
+            int limit = Integer.min(ids.length, i + 50);
+
+            String[] tracks = Arrays.copyOfRange(ids, i, limit);
+            GetSeveralTracksRequest getSeveralTracksRequest = spotifyApi.getSeveralTracks(tracks).build();
+
+            try {
+                Track[] subTracks = getSeveralTracksRequest.execute();
+
+                for (int j = 0; j < subTracks.length; j++) {
+                    Track track = subTracks[j];
+
+                    if (track != null) {
+                        filteredList.put(track.getName(), track.getId());
+                    }
+                }
+            } catch (IOException | SpotifyWebApiException | ParseException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        List<String> list = new ArrayList(filteredList.values());
+        LOGGER.log(Level.INFO, "Track URIS post-filtered: " + list.toString());
+
+        return list;
     }
 
     public HashMap<String, HashMap<String, Float>> getTracksInfo(HashMap<String,String> playlistTracks) throws SpotifyWebApiException {
