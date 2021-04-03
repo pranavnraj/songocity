@@ -4,11 +4,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.songbirds.app.MongoDBClient;
+import com.songbirds.app.S3AwsClient;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.concurrency.SongbirdExecutorService;
 import com.songbirds.concurrency.TrainRunnable;
 import com.songbirds.objects.Friend;
 import com.songbirds.objects.Friends;
+import com.songbirds.util.AWSClientConstants;
 import com.songbirds.util.AppConstants;
 import com.songbirds.util.HttpClientHandler;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.net.http.HttpResponse;
@@ -42,6 +45,8 @@ public class DataController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
+    private S3AwsClient s3AwsClient = S3AwsClient.getInstance();
+
     private static RestTemplate rest = new RestTemplate();
     private static HttpHeaders headers = new HttpHeaders();
     static {
@@ -218,7 +223,10 @@ public class DataController {
         Friends friendRecs = responseEntity.getBody();
 
         List<String> track_URIs = friendRecs.getFriendIDs();
-        String playlistID = api.createPlaylist(user_id, friends.getFriendIDs().toString() + "Playlist2");
+        String title = friends.getFriendIDs().toString() + "Playlist";
+        String playlistID = api.createPlaylist(user_id, title);
+
+        track_URIs = api.getFilteredTracks(track_URIs);
 
         String[] trackURIs = new String[track_URIs.size()];
         for(int i = 0; i < track_URIs.size(); i += 1) {
@@ -260,12 +268,16 @@ public class DataController {
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
-        PrintWriter out = new PrintWriter("src/main/jupyter_notebooks/" +
-                user_id + ".txt");
+        String fileName = "./" + user_id + ".txt";
+        PrintWriter out = new PrintWriter(fileName);
         out.println(user);
         out.flush();
 
-        // TODO Retry after wait period time
+        s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_KEY_PREFIX, fileName);
+
+        File file = new File(fileName);
+        file.delete();
+
         HashMap<String, String> genres = null;
         try {
             genres = api.getRecommendations(numTracks / 126);
@@ -276,7 +288,6 @@ public class DataController {
             e.printStackTrace();
         }
 
-        // TODO Retry after wait period time
         HashMap<String,HashMap<String,Float>> genreInfo = null;
         try {
             genreInfo = api.getTracksInfo(genres);
@@ -289,10 +300,15 @@ public class DataController {
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
-        PrintWriter outRec = new PrintWriter("src/main/jupyter_notebooks/" +
-                user_id + "genres.txt");
+        fileName = "./" + user_id + "genres.txt";
+        PrintWriter outRec = new PrintWriter(fileName);
         outRec.println(genreJson);
         outRec.flush();
+
+        s3AwsClient.putFileInS3(AWSClientConstants.TRAINING_DATA_GENRE_KEY_PREFIX, fileName);
+
+        file = new File(fileName);
+        file.delete();
 
         LOGGER.log(Level.INFO, "Finished collecting data and writing to file");
 
