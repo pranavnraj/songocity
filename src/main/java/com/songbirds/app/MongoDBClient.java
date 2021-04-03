@@ -131,8 +131,13 @@ public class MongoDBClient {
             return "New Entry";
         }
 
-        collection.updateOne(eq("_id", userId), push("friends", newFriendID));
-        return "Added Friend";
+        List<String> friendList = getFriendList(userId);
+        if (!friendList.contains(newFriendID)) {
+            collection.updateOne(eq("_id", userId), push("friends", newFriendID));
+            return "Added Friend";
+        }
+
+        return "Friend already in list";
     }
 
     public void deleteFriend(String userId, String deletedFriendID) {
