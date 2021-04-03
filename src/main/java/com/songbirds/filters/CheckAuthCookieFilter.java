@@ -1,6 +1,7 @@
 package com.songbirds.filters;
 
 import com.songbirds.app.MongoDBClient;
+import com.songbirds.controller.DataController;
 //import com.songbirds.util.MutableHttpServletRequest;
 
 import javax.servlet.*;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CheckAuthCookieFilter implements Filter {
 
@@ -20,6 +23,7 @@ public class CheckAuthCookieFilter implements Filter {
 
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
     private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login"));
+    private static final Logger LOGGER = Logger.getLogger(CheckAuthCookieFilter.class.getName());
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -31,7 +35,7 @@ public class CheckAuthCookieFilter implements Filter {
 
         boolean authenticatedFlag = false;
 
-        System.out.println("Request method URI: " + httpServletRequest.getRequestURI());
+        LOGGER.log(Level.INFO, "Request method URI: " + httpServletRequest.getRequestURI());
 
         if (unauthenticatedRoutes.contains(httpServletRequest.getRequestURI())) {
             chain.doFilter(request, response);
@@ -41,8 +45,8 @@ public class CheckAuthCookieFilter implements Filter {
         if (cookies != null && cookies.length > 0) {
             for (Cookie cookie : cookies) {
                 //logger.debug(cookie.getName() + " : " + cookie.getValue());
-                System.out.println("Cookie Session: " + cookie.getName());
-                System.out.println("Cookie Value: " + cookie.getValue());
+                //System.out.println("Cookie Session: " + cookie.getName());
+                //System.out.println("Cookie Value: " + cookie.getValue());
 
                 if (cookie.getName().equalsIgnoreCase("SESSION")) {
                     byte[] decodedBytes = Base64.getDecoder().decode(cookie.getValue());
