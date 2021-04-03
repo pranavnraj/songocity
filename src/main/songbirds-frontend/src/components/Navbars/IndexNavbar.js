@@ -95,6 +95,9 @@ export default function IndexNavbar() {
   const recommend = () => {
       return axios.get('http://localhost:8888/data/recommend', {withCredentials: true});
   }
+  const ping = () => {
+      return axios.get('http://localhost:8888/ping', {withCredentials: true});
+  }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
       var csrfStateValue = Math.random().toString(36).slice(2);
@@ -110,6 +113,18 @@ export default function IndexNavbar() {
               });
       })
       .catch((error) => {
+        console.log(error.response);
+      });
+      ping().then((response) => {
+        if(response.status == 200){
+          context.setAuthText("Log out");
+          context.setDisplay(true);
+        }
+        else{
+          context.setAuthText("Log in");
+          context.setDisplay(false);
+        }
+      }).catch((error) => {
         console.log(error.response);
       });
     } else {
