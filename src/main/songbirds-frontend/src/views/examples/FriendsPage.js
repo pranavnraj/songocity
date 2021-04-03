@@ -15,11 +15,12 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React, { useState }  from "react";
+import React, { useState, useRef }  from "react";
 import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
 import axios from "axios";
+import waterfall from 'async/waterfall';
 import AsyncSelect from 'react-select/async';
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
@@ -28,7 +29,10 @@ import {
   Card, 
   CardHeader, 
   CardBody,
-  Input
+  Input,
+  Row,
+  Col,
+  Button
 } from "reactstrap";
 import FriendsList from "components/FriendsList";
 
@@ -36,6 +40,8 @@ let ps = null;
 
 export default function FriendsPage() {
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedUsers, setSelectedUsers] = useState([])
+  const currFriends = useRef(null)
   let friendList = [] // store a list of current friends
 
   const getFriendsList = () => {
@@ -59,20 +65,6 @@ export default function FriendsPage() {
     });
   }
 
-  const getFriendsFromQuery = (query) => {
-    queryAllUsers(query).then((response) => {
-      let friends = []
-      response.data.queries.forEach((id) => {
-        friends.push({value: id, label: id})
-      })
-      console.log(friends)
-      return friends
-    })
-    .catch((error) => {
-      console.log(error.response);
-    });
-  }
-
   const getCurrFriendInput = (e) => {
     // Store user input in current friend search bar
     setSearchTerm(e.target.value)
@@ -83,16 +75,57 @@ export default function FriendsPage() {
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
   }
 
-  const loadOptions = (inputValue) => {
+  const addFriends = () => {
+    waterfall([
+      function(callback) {
+        selectedUsers.forEach(selection => {
+          const friendId = selection.value
+          axios.post('http://localhost:8888/data/add_friend', {
+            "friend": friendId,
+          }, {withCredentials: true})
+          .then((response) => {
+            console.log(response)
+          })
+          .catch((error) => {
+            console.log(error.response)
+          })
+        })
+        callback(null)
+      },
+      function(callback) {
+        friendList = populateFriendsList()
+        callback(null)
+      },
+      function(callback) {
+        console.log(friendList)
+        // currFriends.name = dynamicSearch()
+      }
+    ])
+  }
+
+  const loadOptions = (inputValue, callback) => {
     // Async load list of users that fit the query
-    // setTimeout(() => {
-    //   callback(getFriendsFromQuery(inputValue));
-    // }, 1000)
-    new Promise(resolve => {
-      setTimeout(() => {
-        resolve(getFriendsFromQuery(inputValue));
-      }, 1000);
-    });
+    setTimeout(() => {
+      queryAllUsers(inputValue).then((response) => {
+        if(!inputValue) {
+          return callback([])
+        }
+        let friends = response.data.queries
+        if(!friends) {
+          return callback([])
+        }
+        friends = friends.map(id => ({
+          value: id, 
+          label: id
+        }))
+        console.log(friends)
+        callback(friends)
+      })
+      .catch((error) => {
+        console.log(error.response);
+        callback([])
+      });
+    }, 1000)
   }
 
   React.useEffect(() => {
@@ -125,6 +158,22 @@ export default function FriendsPage() {
     margin: 10
   }
 
+  const selectStyle = {
+    option: provided => ({
+      ...provided,
+      color: "black"
+    }),
+    control: provided => ({
+      ...provided,
+      color: "black",
+      width: "100%",
+    }),
+    singleValue: provided => ({
+      ...provided,
+      color: "black"
+    }),
+  }
+
   return (
     <>
       <IndexNavbar />
@@ -144,21 +193,39 @@ export default function FriendsPage() {
               <Card color="default">
                 <CardHeader>
                   <h4 className="title">Friends List</h4>
-                  <AsyncSelect
-                    placeholder="Enter friend ID to add more friends"
-                    isMulti
-                    cacheOptions
-                    loadOptions={loadOptions}
-                    defaultOptions
-                    theme={theme => ({
-                      ...theme,
-                      borderRadius: 5,
-                      colors: {
-                        ...theme.colors,
-                        primary: "#Ad2dca", 
-                      }
-                    })}
-                  />
+                  <Container fluid>
+                    <Row>
+                      <Col xs={9} md={10}>
+                        <AsyncSelect
+                          placeholder="Enter friend ID to add more friends"
+                          isMulti
+                          cacheOptions
+                          loadOptions={loadOptions}
+                          defaultOptions
+                          onChange={setSelectedUsers}
+                          styles={selectStyle}
+                          theme={theme => ({
+                            ...theme,
+                            borderRadius: 5,
+                            colors: {
+                              ...theme.colors,
+                              primary: "#Ad2dca", 
+                            }
+                          })}
+                        />
+                      </Col>
+                      <Col xs={3} md={2}>
+                        <Button 
+                          className="btn-round" 
+                          color="danger" 
+                          type="button"
+                          size="sm"
+                          onClick={addFriends}
+                        > Add to Friends
+                        </Button>
+                      </Col>
+                    </Row>
+                  </Container>
                   <Input 
                     type="text"
                     placeholder="Search for a current friend based on username" 
@@ -168,7 +235,11 @@ export default function FriendsPage() {
                   />
                 </CardHeader>
                 <CardBody>
-                  <FriendsList names={dynamicSearch()} keyword={searchTerm}/>
+                  <FriendsList
+                    ref={currFriends} 
+                    names={dynamicSearch()} 
+                    keyword={searchTerm}
+                  />
                 </CardBody>
               </Card>
             </Container>
