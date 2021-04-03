@@ -30,6 +30,13 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity<String> ping(HttpSession session) {
+        LOGGER.log(Level.INFO, "PING: User " + session.getAttribute("user_id").toString());
+        return ResponseEntity.status(HttpStatus.OK).body(session.getAttribute("user_id").toString());
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity login(@RequestParam(name="state") String state) {
@@ -81,6 +88,7 @@ public class AuthController {
 
         synchronized (currentLoginThreadLock) {
             session.setAttribute("user_id", id);
+            session.setAttribute("name", userInfo.get("display_name"));
             if (mongoClient.getProfile(userInfo.get("id")) == null) {
                 mongoClient.createNewProfile(userInfo);
             }
