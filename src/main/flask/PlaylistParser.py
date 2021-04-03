@@ -1,15 +1,28 @@
 import json
 import pandas as pd
 import warnings
+import boto3
 warnings.filterwarnings('ignore')
 from sklearn import preprocessing
 from sklearn import svm
 
 
 def produceTrainingData(user_id):
-	data = {}
-	with open('../jupyter_notebooks/' + user_id + '.txt','r') as test_file:
-		data = json.load(test_file)
+
+	bucket = 'songbirdsdata'
+	key = 'UserSongs/' + user_id + '.txt'
+	print(key)
+
+	s3 = boto3.resource('s3')
+	obj = s3.Object(bucket, key)
+	json_data = obj.get()['Body'].read().decode('utf-8')
+	data = json.loads(json_data)
+
+	#data = {}
+	#with open('../jupyter_notebooks/' + user_id + '.txt','r') as test_file:
+	#	data = json.load(test_file)
+
+	#print(data)
 
 	for playlist in data:
 		for song in data[playlist]:
@@ -33,10 +46,18 @@ def produceTrainingData(user_id):
 	return training_data, features
 
 def produceGenreTrainingData(user_id, training_data, features):
-	data = {}
+	bucket = 'songbirdsdata'
+	key = 'GenreSongs/' + user_id + 'genres.txt'
 
-	with open('../jupyter_notebooks/' + user_id + 'genres.txt', 'r') as genres_file:
-		data = json.load(genres_file)
+	s3 = boto3.resource('s3')
+	obj = s3.Object(bucket, key)
+	json_data = obj.get()['Body'].read().decode('utf-8')
+	data = json.loads(json_data)
+
+	#data = {}
+
+	#with open('../jupyter_notebooks/' + user_id + 'genres.txt', 'r') as genres_file:
+	#	data = json.load(genres_file)
 
 	rows = []
 
@@ -57,11 +78,21 @@ def produceGenreTrainingData(user_id, training_data, features):
 
 def produceTestingData(friend_id_list):
 	
+	bucket = 'songbirdsdata'
+	s3 = boto3.resource('s3')
+
 	test_data = {}
 	for id in friend_id_list:
-		with open('../jupyter_notebooks/' + id + ".txt", 'r') as test_file:
-			data = json.load(test_file)
-			test_data.update(data)
+		key = 'UserSongs/' + id + '.txt'
+		obj = s3.Object(bucket, key)
+
+		json_data = obj.get()['Body'].read().decode('utf-8')
+		data = json.loads(json_data)
+		test_data.update(data)
+
+		#with open('../jupyter_notebooks/' + id + ".txt", 'r') as test_file:
+		#	data = json.load(test_file)
+		#	test_data.update(data)
 
 	for playlist in test_data:
 		for song in test_data[playlist]:
@@ -85,7 +116,7 @@ def produceTestingData(friend_id_list):
 def produceRecs(preds, test_index_to_track, training_data):
 	recs = []
 	for index, rec in enumerate(preds):
-		if rec[1] >= 0.80 and test_index_to_track[index] not in training_data:
+		if rec[1] >= 0.90 and test_index_to_track[index] not in training_data:
 			recs.append(index)
 
 	track_recs = []
