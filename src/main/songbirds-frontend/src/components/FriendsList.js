@@ -18,6 +18,18 @@ class FriendsList extends Component {
         }
     }
 
+    arrayEquals = (a, b) =>
+        a.length === b.length &&
+        a.every((v, i) => v === b[i])
+
+    componentDidUpdate(prevProps) {
+        console.log("component updated")
+        if(!this.arrayEquals(prevProps.names, this.props.names)) {
+            console.log("arrays not equal")
+            this.forceUpdate()
+        }
+    }
+
     render() {
         return(
             <div>
