@@ -20,7 +20,6 @@ import PerfectScrollbar from "perfect-scrollbar";
 
 // core components
 import axios from "axios";
-import waterfall from 'async/waterfall';
 import AsyncSelect from 'react-select/async';
 import IndexNavbar from "components/Navbars/IndexNavbar.js";
 import Footer from "components/Footer/Footer.js";
@@ -76,31 +75,26 @@ export default function FriendsPage() {
   }
 
   const addFriends = () => {
-    waterfall([
-      function(callback) {
-        selectedUsers.forEach(selection => {
-          const friendId = selection.value
-          axios.post('http://localhost:8888/data/add_friend', {
-            "friend": friendId,
-          }, {withCredentials: true})
-          .then((response) => {
-            console.log(response)
-          })
-          .catch((error) => {
-            console.log(error.response)
-          })
+    selectedUsers.forEach(selection => {
+      const friendId = selection.value
+      axios.post('http://localhost:8888/data/add_friend', {
+        "friend": friendId,
+      }, {withCredentials: true})
+      .then((response) => {
+        console.log(response)
+        getFriendsList().then((res) => {
+          friendList = res.data.friends
+          currFriends.current.names = dynamicSearch()
+          console.log(currFriends.current.names)
         })
-        callback(null)
-      },
-      function(callback) {
-        friendList = populateFriendsList()
-        callback(null)
-      },
-      function(callback) {
-        console.log(friendList)
-        // currFriends.name = dynamicSearch()
-      }
-    ])
+        .catch((err) => {
+          console.log(err)
+        })  
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+    })
   }
 
   const loadOptions = (inputValue, callback) => {
@@ -118,7 +112,6 @@ export default function FriendsPage() {
           value: id, 
           label: id
         }))
-        console.log(friends)
         callback(friends)
       })
       .catch((error) => {
