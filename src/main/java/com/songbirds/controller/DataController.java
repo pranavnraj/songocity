@@ -16,6 +16,7 @@ import com.songbirds.util.HttpClientHandler;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
 import org.apache.juli.logging.Log;
+import org.bson.Document;
 import org.json.JSONObject;
 import org.springframework.http.*;
 
@@ -166,18 +167,25 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
         }
 
-        List<String> playlistList = mongoClient.getPlaylistList(user_id);
+        List<Document> playlistList = mongoClient.getPlaylistList(user_id);
 
         JSONObject obj = new JSONObject();
 
-        for (String playListID: playlistList) {
-            HashMap<String, String> tracks = api.getTracks(playListID);
-            obj.put(playListID, tracks.values());
+        for (Document playlistInfo: playlistList) {
+            HashMap<String, String> tracks = api.getTracks(playlistInfo.getString("playlist_id"));
+            String playListTitle = playlistInfo.getString("title");
+
+            if (!tracks.values().isEmpty()) {
+                JSONObject subObj = new JSONObject();
+                subObj.put("title", playListTitle);
+                subObj.put("tracks", tracks.values());
+                obj.put(playlistInfo.getString("playlist_id"), subObj);
+            }
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
-
+    
     @RequestMapping(value = "/remove_playlist", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity removePlaylist(@RequestParam(name="playlistID") String playlistID, HttpSession session) {
@@ -234,7 +242,7 @@ public class DataController {
         }
 
         api.addTracksToPlaylist(playlistID, trackURIs);
-        mongoClient.addNewPlaylist(user_id, playlistID);
+        mongoClient.addNewPlaylist(user_id, playlistID, title);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
     }

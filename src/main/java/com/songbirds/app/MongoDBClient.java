@@ -5,8 +5,10 @@ import com.mongodb.ServerAddress;
 import com.mongodb.client.*;
 import com.mongodb.MongoClientSettings;
 
+import com.mongodb.client.model.Updates;
 import com.songbirds.util.MongoDBConstants;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,13 +102,13 @@ public class MongoDBClient {
         collection.deleteOne(eq("_id", id));
     }
 
-    public ArrayList<String> findMatchingFriends(String id) {
+    public List<String> findMatchingFriends(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
 
         String pattern = ".*" + id + ".*";
         FindIterable<Document> col = collection.find(regex("_id", pattern));
 
-        ArrayList<String> matchedStrings = new ArrayList<String>();
+        List<String> matchedStrings = new ArrayList<String>();
 
         for(Document doc: col) {
             matchedStrings.add(doc.getString("_id"));
@@ -120,7 +122,7 @@ public class MongoDBClient {
 
         if (friendListExists(userId) == null) {
 
-            ArrayList<String> friendList = new ArrayList<String>();
+            List<String> friendList = new ArrayList<String>();
             friendList.add(newFriendID);
 
             Document newFriendEntry = new Document();
@@ -207,31 +209,44 @@ public class MongoDBClient {
         return doc;
     }
 
-    public String addNewPlaylist(String userId, String playListId) {
+    public String addNewPlaylist(String userId, String playListId, String title) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
 
         if (playlistExists(userId) == null) {
 
-            ArrayList<String> playlistList = new ArrayList<String>();
-            playlistList.add(playListId);
+            //List<String> playlistList = new ArrayList<String>();
+            //playlistList.add(playListId);
 
             Document newPlaylistEntry = new Document();
             newPlaylistEntry.append("_id", userId);
-            newPlaylistEntry.append("playlists", playlistList);
+
+            List<Document> playlistDocList = new ArrayList<Document>();
+
+            Document idAndName = new Document();
+            idAndName.append("title", title);
+            idAndName.append("playlist_id", playListId);
+
+            playlistDocList.add(idAndName);
+
+            newPlaylistEntry.append("playlists", playlistDocList);
 
             collection.insertOne(newPlaylistEntry);
             return "New Entry";
         }
 
-        collection.updateOne(eq("_id", userId), push("playlists", playListId));
+        Document idAndName = new Document();
+        idAndName.append("title", title);
+        idAndName.append("playlist_id", playListId);
+
+        collection.updateOne(eq("_id", userId), push("playlists", idAndName));
         return "Added Friend";
     }
 
-    public List<String> getPlaylistList(String userID) {
+    public List<Document> getPlaylistList(String userID) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
         Document doc = collection.find(eq("_id", userID)).first();
 
-        List<String> playlistList = doc.getList("playlists", String.class);
+        List<Document> playlistList = doc.getList("playlists", Document.class);
 
         return playlistList;
     }
@@ -239,7 +254,8 @@ public class MongoDBClient {
     public void deletePlaylist(String userId, String deletedPlaylistID) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
 
-        collection.updateOne(eq("_id", userId), pull("playlists", deletedPlaylistID));
+        Bson delete = Updates.pull("playlists", new Document("playlist_id", deletedPlaylistID));
+        collection.updateOne(eq("_id", userId), delete);
     }
 
 
