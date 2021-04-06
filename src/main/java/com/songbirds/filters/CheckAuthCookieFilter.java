@@ -22,7 +22,7 @@ public class CheckAuthCookieFilter implements Filter {
     //private Logger logger = LoggerFactory.getLogger(getClass());
 
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
-    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login"));
+    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login", "/", "blk-design-system-react"));
     private static final Logger LOGGER = Logger.getLogger(CheckAuthCookieFilter.class.getName());
 
     @Override
