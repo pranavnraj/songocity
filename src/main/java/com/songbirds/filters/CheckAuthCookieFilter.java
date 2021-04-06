@@ -22,7 +22,7 @@ public class CheckAuthCookieFilter implements Filter {
     //private Logger logger = LoggerFactory.getLogger(getClass());
 
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
-    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login", "/", "blk-design-system-react"));
+    private List<String> unauthenticatedRoutes = new ArrayList<String>(Arrays.asList("/login", "/callback/", "/prime_login", "/", "/manifest.json", "/favicon.ico"));
     private static final Logger LOGGER = Logger.getLogger(CheckAuthCookieFilter.class.getName());
 
     @Override
@@ -37,7 +37,7 @@ public class CheckAuthCookieFilter implements Filter {
 
         LOGGER.log(Level.INFO, "Request method URI: " + httpServletRequest.getRequestURI());
 
-        if (unauthenticatedRoutes.contains(httpServletRequest.getRequestURI())) {
+        if (unauthenticatedRoutes.contains(httpServletRequest.getRequestURI()) || httpServletRequest.getRequestURI().contains("static")) {
             chain.doFilter(request, response);
             return;
         }
