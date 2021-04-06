@@ -185,6 +185,7 @@ public class DataController {
 
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
+
     
     @RequestMapping(value = "/remove_playlist", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
