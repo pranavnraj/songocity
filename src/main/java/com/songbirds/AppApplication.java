@@ -15,6 +15,7 @@ public class AppApplication {
 		SpringApplication.run(AppApplication.class, args);
 	}
 
+	/*
 	@Bean
 	WebMvcConfigurer webMvcConfigurer() {
 		return new WebMvcConfigurerAdapter() {
@@ -24,5 +25,5 @@ public class AppApplication {
 						.addResourceLocations("classpath:/blk-design-system-react/");
 			}
 		};
-	}
+	}*/
 }
