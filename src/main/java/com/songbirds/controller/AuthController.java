@@ -5,6 +5,7 @@ import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.objects.LoginThreadLock;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import org.json.*;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 @RestController
@@ -22,6 +24,11 @@ public class AuthController {
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
     private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
+    
+    @RequestMapping(value = "/{[path:[^\\.]*}")
+    public void redirect(HttpServletResponse response) throws IOException {
+        response.sendRedirect("/");
+    }
 
     @RequestMapping(value = "/prime_login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
