@@ -47,6 +47,18 @@ export default function IndexNavbar() {
   const clientID = "3cceff6ff3144834b845505bcfab9cd7";
   const redirectURI = "http://localhost:8888/callback/";
   React.useEffect(() => {
+    ping().then((response) => {
+            if(response.status == 200){
+              context.setAuthText("Log out");
+              context.setDisplay(true);
+            }
+            else{
+              context.setAuthText("Log in");
+              context.setDisplay(false);
+            }
+          }).catch((error) => {
+            console.log(error.response);
+          });
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
       window.removeEventListener("scroll", changeColor);
@@ -113,18 +125,6 @@ export default function IndexNavbar() {
               });
       })
       .catch((error) => {
-        console.log(error.response);
-      });
-      ping().then((response) => {
-        if(response.status == 200){
-          context.setAuthText("Log out");
-          context.setDisplay(true);
-        }
-        else{
-          context.setAuthText("Log in");
-          context.setDisplay(false);
-        }
-      }).catch((error) => {
         console.log(error.response);
       });
     } else {
