@@ -3,6 +3,7 @@ package com.songbirds.controller;
 import com.songbirds.app.MongoDBClient;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.objects.LoginThreadLock;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -18,13 +19,13 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-@RestController
+@Controller
 public class AuthController {
 
     private SpotifyWebAPI api = SpotifyWebAPI.getInstance();
     private MongoDBClient mongoClient = MongoDBClient.getInstance();
     private static final Logger LOGGER = Logger.getLogger(AuthController.class.getName());
-    
+
     @RequestMapping(value = "/{[path:[^\\.]*}")
     public void redirect(HttpServletResponse response) throws IOException {
         response.sendRedirect("/");
@@ -32,6 +33,7 @@ public class AuthController {
 
     @RequestMapping(value = "/prime_login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @ResponseBody
     public ResponseEntity primeLogin(@RequestParam(name="state") String state) {
         LoginThreadLock.addToLoginLocks(new LoginThreadLock(state));
         return ResponseEntity.status(HttpStatus.OK).build();
@@ -39,6 +41,7 @@ public class AuthController {
 
     @RequestMapping(value = "/ping", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @ResponseBody
     public ResponseEntity<String> ping(HttpSession session) {
         LOGGER.log(Level.INFO, "PING: User " + session.getAttribute("user_id").toString());
         return ResponseEntity.status(HttpStatus.OK).body(session.getAttribute("user_id").toString());
@@ -46,6 +49,7 @@ public class AuthController {
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @ResponseBody
     public ResponseEntity login(@RequestParam(name="state") String state) {
 
         LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
@@ -66,6 +70,7 @@ public class AuthController {
 
     @RequestMapping(value = "/logout", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @ResponseBody
     public ResponseEntity logout(HttpSession session) {
 
         String user_id;
@@ -83,7 +88,7 @@ public class AuthController {
 
     @RequestMapping(value = "/callback", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000")
-    public ResponseEntity<String> callback(@RequestParam(name="code") String code,
+    public String callback(@RequestParam(name="code") String code,
                                            @RequestParam(name="state") String state, HttpSession session) {
         LOGGER.setLevel(Level.INFO);
 
@@ -109,7 +114,7 @@ public class AuthController {
         obj.put("display_name", userInfo.get("display_name"));
         obj.put("email", userInfo.get("email"));
 
-        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+        return "success";
     }
 
 }
