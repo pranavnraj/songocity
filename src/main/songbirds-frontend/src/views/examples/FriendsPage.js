@@ -45,12 +45,12 @@ export default function FriendsPage() {
 
   const getFriendsList = () => {
     // Get a user's current friends
-    return axios.get('http://localhost:8888/data/get_friend_list', {withCredentials: true});
+    return axios.get('/data/get_friend_list', {withCredentials: true});
   }
 
   const queryAllUsers = (query) => {
     // Get all users that fit the query
-    const httpStr = 'http://localhost:8888/data/query_friend?id_query=' + query
+    const httpStr = '/data/query_friend?id_query=' + query
     return axios.get(httpStr, {withCredentials: true})
   }
 
@@ -77,7 +77,7 @@ export default function FriendsPage() {
   const addFriends = () => {
     selectedUsers.forEach(selection => {
       const friendId = selection.value
-      axios.post('http://localhost:8888/data/add_friend', {
+      axios.post('/data/add_friend', {
         "friend": friendId,
       }, {withCredentials: true})
       .then((response) => {
