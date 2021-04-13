@@ -93,22 +93,22 @@ export default function IndexNavbar() {
       .scrollIntoView({ behavior: "smooth" });
   };
   const getSpotifyLogin = (csrfStateValue) => {
-    return axios.get('http://localhost:8888/login', { params: { state: csrfStateValue } }, {withCredentials: true});
+    return axios.get('/login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
   const primeLogin = (csrfStateValue) => {
-    return axios.get('http://localhost:8888/prime_login', { params: { state: csrfStateValue } }, {withCredentials: true});
+    return axios.get('/prime_login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
   const logout = () => {
-    return axios.get('http://localhost:8888/logout', {withCredentials: true});
+    return axios.get('/logout', {withCredentials: true});
   }
   const train = () => {
-      return axios.get('http://localhost:8888/data/train', {withCredentials: true});
+      return axios.get('/data/train', {withCredentials: true});
   }
   const recommend = () => {
-      return axios.get('http://localhost:8888/data/recommend', {withCredentials: true});
+      return axios.get('/data/recommend', {withCredentials: true});
   }
   const ping = () => {
-      return axios.get('http://localhost:8888/ping', {withCredentials: true});
+      return axios.get('/ping', {withCredentials: true});
   }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
