@@ -75,7 +75,7 @@ export default function ProfilePage() {
   const [profilePic, setProfilePic] = useState(null);
 
   const getProfileInfo = () => {
-    return axios.get('http://localhost:8888/data/profile', {withCredentials: true});
+    return axios.get('/data/profile', {withCredentials: true});
   }
   
   const populateProfileInfo = () => {
