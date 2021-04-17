@@ -277,7 +277,7 @@ public class DataController {
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();
-        String fileName = "./" + user_id + ".txt";
+        String fileName = "/tmp/" + user_id + ".txt";
         PrintWriter out = new PrintWriter(fileName);
         out.println(user);
         out.flush();
@@ -309,7 +309,7 @@ public class DataController {
 
         Gson rec_gson = new GsonBuilder().create();
         JsonObject genreJson = rec_gson.toJsonTree(genreInfo).getAsJsonObject();
-        fileName = "./" + user_id + "genres.txt";
+        fileName = "/tmp/" + user_id + "genres.txt";
         PrintWriter outRec = new PrintWriter(fileName);
         outRec.println(genreJson);
         outRec.flush();
