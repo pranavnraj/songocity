@@ -16,9 +16,13 @@ import pickle
 
 import PlaylistParser
 
-app = Flask(__name__)
+application = Flask(__name__)
 
-@app.route('/recommend', methods=['GET', 'POST'])
+@application.route('/ping', methods=['GET', 'POST'])
+def ping():
+	return jsonify("hello there"),200
+
+@application.route('/recommend', methods=['GET', 'POST'])
 def createRecommendation():
 
 	friend_id_list = request.get_json()['friends']
@@ -60,7 +64,7 @@ def createRecommendation():
 	data = {"friendIDs": list(track_recs)}
 	return jsonify(data), 200
 
-@app.route('/train', methods=['GET', 'POST'])
+@application.route('/train', methods=['GET', 'POST'])
 def trainModel():
 
 	#user_id = request.form.get('user_id')
@@ -96,6 +100,9 @@ def trainModel():
 
 
 	return jsonify(lr.score(X, y)),200
+
+if __name__ == '__main__':
+	application.run(port=5000, debug=True)
 
 
 
