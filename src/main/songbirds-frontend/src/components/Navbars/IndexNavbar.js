@@ -45,8 +45,8 @@ export default function IndexNavbar() {
   const history = useHistory();
   const context = useContext(AppContext);
   const clientID = "3cceff6ff3144834b845505bcfab9cd7";
-  const redirectURI = "http://localhost:8888/callback/";
-  //const redirectURI = DNS NAME;
+  const redirectURI = "http://localhost:5000/callback/";
+  //const redirectURI = "http://songbirds-dev.us-west-1.elasticbeanstalk.com/callback/";
   React.useEffect(() => {
     ping().then((response) => {
             if(response.status == 200){
