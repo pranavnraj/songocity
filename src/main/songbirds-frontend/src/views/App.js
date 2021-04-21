@@ -12,7 +12,7 @@ import RegisterPage from "views/examples/RegisterPage.js";
 import SignInPage from "views/examples/SignInPage.js";
 import ProfilePage from "views/examples/ProfilePage.js";
 import FriendsPage from "views/examples/FriendsPage.js";
-
+import RecommenderPage from "views/examples/RecommenderPage.js";
 export default function App () {
   const [authBtnText, setAuthText] = useState("Log in");
   const [displayOptions, setDisplay] = useState(false);
@@ -49,6 +49,11 @@ export default function App () {
             path="/friends"
             render={(props) => <FriendsPage {...props}/>}
             />
+          <Route
+            path="/recommender"
+            render={(props) => <RecommenderPage {...props}/>}
+            />
+
           <Redirect from="/" to="/components" />
         </Switch>
       </BrowserRouter>
