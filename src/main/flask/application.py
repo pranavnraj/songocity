@@ -102,7 +102,7 @@ def trainModel():
 	return jsonify(lr.score(X, y)),200
 
 if __name__ == '__main__':
-	application.run(port=5000, debug=True)
+	application.run(port=5001, debug=True)
 
 
 
