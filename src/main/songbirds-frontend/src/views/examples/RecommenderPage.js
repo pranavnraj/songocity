@@ -41,17 +41,10 @@ export default function RecommenderPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUsers, setSelectedUsers] = useState([])
   const currFriends = useRef(null)
-  let friendList = [] // store a list of current friends
+  let friendList = [] 
 
   const getFriendsList = () => {
-    // Get a user's current friends
     return axios.get('/data/get_friend_list', {withCredentials: true});
-  }
-
-  const queryAllUsers = (query) => {
-    // Get all users that fit the query
-    const httpStr = '/data/query_friend?id_query=' + query
-    return axios.get(httpStr, {withCredentials: true})
   }
 
   const populateFriendsList = () => {
@@ -65,28 +58,32 @@ export default function RecommenderPage() {
   }
 
   const getCurrFriendInput = (e) => {
-    // Store user input in current friend search bar
     setSearchTerm(e.target.value)
   }
 
   const dynamicSearch = () => {
-    // Current friend query pattern matching
     return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
   }
 
   const recommend = () => {
     axios.post("/data/recommend", {"friendIDs": friendList},
-    {withCredentials: true});
+    {withCredentials: true}).then(response => {
+      if(response.status == 200)
+      {
+        return axios.get("/data/recommend", {withCredentials: true});
+      }
+    }).catch(error => {
+      console.log(error);
+    });
   }
 
   const loadOptions = (inputValue, callback) => {
-    // Async load list of users that fit the query
     setTimeout(() => {
-      queryAllUsers(inputValue).then((response) => {
-        if(!inputValue) {
+      getFriendsList().then((response) => {
+        if(response.status != 200) {
           return callback([])
         }
-        let friends = response.data.queries
+        let friends = response.data.friends
         if(!friends) {
           return callback([])
         }
@@ -102,7 +99,6 @@ export default function RecommenderPage() {
       });
     }, 1000)
   }
-
   React.useEffect(() => {
     if (navigator.platform.indexOf("Win") > -1) {
       document.documentElement.className += " perfect-scrollbar-on";
