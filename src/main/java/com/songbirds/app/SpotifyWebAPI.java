@@ -44,9 +44,6 @@ public class SpotifyWebAPI {
 
     private SpotifyApi spotifyApi;
     private final URI redirectURI;
-    private String authCode;
-    private String refreshToken;
-    private String accessToken;
 
     private static MongoDBClient mongoClient = MongoDBClient.getInstance();
     private static final Logger LOGGER = Logger.getLogger(SpotifyWebAPI.class.getName());
@@ -180,58 +177,71 @@ public class SpotifyWebAPI {
         return playlistInfo;
     }
 
-    public HashMap<String,String> getTracks(String playlistId){
+    public HashMap<String,String> getTracks(String playlistId) throws SpotifyWebApiException {
         GetPlaylistsItemsRequest getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).build();
         HashMap<String,String> playlistTracks = new HashMap<String,String>();
-        try{
-            Paging<PlaylistTrack> playlistTrackPaging = getPlaylistsItemsRequest.execute();
 
-            if(playlistTrackPaging.getNext() == null){
-                PlaylistTrack[] items = playlistTrackPaging.getItems();
+        while(true) {
+            try {
+                Paging<PlaylistTrack> playlistTrackPaging = getPlaylistsItemsRequest.execute();
 
-                for (PlaylistTrack track : items) {
-                    // TODO Toggle between recency and all
-                    Date currentDate = new Date();
-                    Date trackDate = track.getAddedAt();
-                    //LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
-                    //LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
-                    //LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
-                    if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
-                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
-                    }
-                    //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
-                }
-            }else {
-                int offset = 0;
-                while (playlistTrackPaging.getNext() != null) {
+                if (playlistTrackPaging.getNext() == null) {
                     PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                     for (PlaylistTrack track : items) {
-                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        // TODO Toggle between recency and all
+                        Date currentDate = new Date();
+                        Date trackDate = track.getAddedAt();
+                        //LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
+                        //LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
+                        //LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
+                        if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
+                            playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        }
+                        //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                     }
-                    offset += 100;
-                    getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).offset(offset).build();
-                    playlistTrackPaging = getPlaylistsItemsRequest.execute();
-                }
-                PlaylistTrack[] items = playlistTrackPaging.getItems();
+                } else {
+                    int offset = 0;
+                    while (playlistTrackPaging.getNext() != null) {
+                        PlaylistTrack[] items = playlistTrackPaging.getItems();
 
-                for (PlaylistTrack track : items) {
-                    // TODO Toggle between recency and all
-                    Date currentDate = new Date();
-                    Date trackDate = track.getAddedAt();
-                    LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
-                    LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
-                    LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
-                    if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
-                        playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        for (PlaylistTrack track : items) {
+                            playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        }
+                        offset += 100;
+                        getPlaylistsItemsRequest = spotifyApi.getPlaylistsItems(playlistId).offset(offset).build();
+                        playlistTrackPaging = getPlaylistsItemsRequest.execute();
                     }
-                   //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    PlaylistTrack[] items = playlistTrackPaging.getItems();
+
+                    for (PlaylistTrack track : items) {
+                        // TODO Toggle between recency and all
+                        Date currentDate = new Date();
+                        Date trackDate = track.getAddedAt();
+                        LOGGER.log(Level.INFO, "Current Date: " + currentDate.getTime());
+                        LOGGER.log(Level.INFO, "Milliseconds in yr: " + AppConstants.MILLISECONDS_IN_YEAR);
+                        LOGGER.log(Level.INFO, "track Date: " + trackDate.getTime());
+                        if (currentDate.getTime() - AppConstants.MILLISECONDS_IN_YEAR < trackDate.getTime()) {
+                            playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                        }
+                        //playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
+                    }
                 }
+                break;
+
+            } catch (TooManyRequestsException e) {
+                LOGGER.log(Level.INFO, "Rate Limit: Pausing for a few seconds before trying again");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException a) {
+                    a.printStackTrace();
+                }
+            } catch (IOException | ParseException e) {
+                System.out.print("Error: " + e.getMessage());
             }
-
-        }catch(IOException | SpotifyWebApiException | ParseException e) {
-            System.out.print("Error: " + e.getMessage());
         }
+
+        LOGGER.log(Level.INFO, playlistTracks.toString());
 
         System.out.println("Songs: " + playlistTracks.size());
 
