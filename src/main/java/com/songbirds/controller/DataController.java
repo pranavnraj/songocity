@@ -172,7 +172,17 @@ public class DataController {
         JSONObject obj = new JSONObject();
 
         for (Document playlistInfo: playlistList) {
-            HashMap<String, String> tracks = api.getTracks(playlistInfo.getString("playlist_id"));
+            HashMap<String, String> tracks;
+            try {
+                tracks = api.getTracks(playlistInfo.getString("playlist_id"));
+            } catch(ServiceUnavailableException e) {
+                return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
+            } catch(SpotifyWebApiException e) {
+                System.out.println("Error");
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
+            }
+
             String playListTitle = playlistInfo.getString("title");
 
             if (!tracks.values().isEmpty()) {
@@ -263,7 +273,7 @@ public class DataController {
 
         LOGGER.log(Level.INFO, "Generating training data");
 
-        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo = null;
+        HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo;
         // TODO Retry after wait period time
         try {
             playlistsInfo = api.generateUserData(user_id);
@@ -272,6 +282,7 @@ public class DataController {
         } catch(SpotifyWebApiException e) {
             System.out.println("Error");
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
         int numTracks = api.getNumTracks(playlistsInfo);
 
@@ -287,17 +298,18 @@ public class DataController {
         File file = new File(fileName);
         file.delete();
 
-        HashMap<String, String> genres = null;
+        HashMap<String, String> genres;
         try {
-            genres = api.getRecommendations(numTracks / 126);
+            genres = api.getRecommendations(numTracks / AppConstants.NUM_GENRES);
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
             System.out.println("Error");
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
 
-        HashMap<String,HashMap<String,Float>> genreInfo = null;
+        HashMap<String,HashMap<String,Float>> genreInfo;
         try {
             genreInfo = api.getTracksInfo(genres);
         } catch (ServiceUnavailableException e) {
@@ -305,6 +317,7 @@ public class DataController {
         } catch(SpotifyWebApiException e) {
             System.out.println("Error");
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
 
         Gson rec_gson = new GsonBuilder().create();
