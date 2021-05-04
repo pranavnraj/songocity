@@ -160,7 +160,11 @@ export default function IndexNavbar() {
         </Button>
       </NavItem>
       <NavItem>
-        <Button className="btn-link" color="danger">
+        <Button
+        className="btn-link"
+        color="danger"
+        onClick={() => history.push("/playlists")}
+        >
           New Playlists
         </Button>
       </NavItem>

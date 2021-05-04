@@ -41,7 +41,7 @@ export default function FriendsPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUsers, setSelectedUsers] = useState([])
   const currFriends = useRef(null)
-  let friendList = [] // store a list of current friends
+  const [friendList, setFriendList] = useState([]) // store a list of current friends
 
   const getFriendsList = () => {
     // Get a user's current friends
@@ -57,7 +57,7 @@ export default function FriendsPage() {
   const populateFriendsList = () => {
     getFriendsList().then((response) => {
       const res = response.data;
-      return res.friends;
+      setFriendList(res.friends);
     })
     .catch((error) => {
       console.log(error.response);
@@ -83,7 +83,8 @@ export default function FriendsPage() {
       .then((response) => {
         console.log(response)
         getFriendsList().then((res) => {
-          friendList = res.data.friends
+          //friendList = res.data.friends
+          setFriendList(res.data.friends)
           currFriends.current.names = dynamicSearch()
           console.log(currFriends.current.names)
         })
@@ -131,7 +132,8 @@ export default function FriendsPage() {
       }
     }
     document.body.classList.toggle("profile-page");
-    friendList = populateFriendsList();
+    populateFriendsList();
+    console.log(friendList)
 
     // Specify how to clean up after this effect:
     return function cleanup() {
