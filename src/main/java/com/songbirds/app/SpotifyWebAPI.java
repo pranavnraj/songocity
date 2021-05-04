@@ -19,6 +19,7 @@ import com.wrapper.spotify.model_objects.credentials.AuthorizationCodeCredential
 import com.wrapper.spotify.requests.authorization.authorization_code.AuthorizationCodeRequest;
 
 import com.wrapper.spotify.requests.data.browse.GetRecommendationsRequest;
+import com.wrapper.spotify.requests.data.follow.UnfollowPlaylistRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopArtistsRequest;
 import com.wrapper.spotify.requests.data.personalization.simplified.GetUsersTopTracksRequest;
 import com.wrapper.spotify.requests.data.player.GetCurrentUsersRecentlyPlayedTracksRequest;
@@ -578,6 +579,21 @@ public class SpotifyWebAPI {
                 e.printStackTrace();
             }
         }
+    }
+
+    public String unfollowPlaylist(String playlistID) {
+
+        String response;
+        UnfollowPlaylistRequest unfollowPlaylistRequest = spotifyApi.unfollowPlaylist(playlistID).build();
+        try {
+            response = unfollowPlaylistRequest.execute();
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            LOGGER.log(Level.SEVERE,"Error: " + e.getMessage());
+            e.printStackTrace();
+            return "Error deleting playlist";
+        }
+
+        return response;
     }
 
     public synchronized String storeTokensUponLogin(String authCode) {

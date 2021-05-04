@@ -174,6 +174,7 @@ public class DataController {
         for (Document playlistInfo: playlistList) {
             HashMap<String, String> tracks;
             try {
+                api.reprimeAPI(user_id);
                 tracks = api.getTracks(playlistInfo.getString("playlist_id"));
             } catch(ServiceUnavailableException e) {
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
@@ -193,6 +194,8 @@ public class DataController {
             }
         }
 
+        LOGGER.log(Level.INFO, obj.toString());
+
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
@@ -209,6 +212,7 @@ public class DataController {
         }
 
         mongoClient.deletePlaylist(user_id, playlistID);
+        api.unfollowPlaylist(playlistID);
 
         return ResponseEntity.status(HttpStatus.OK).build();
 
