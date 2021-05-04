@@ -13,6 +13,8 @@ import SignInPage from "views/examples/SignInPage.js";
 import ProfilePage from "views/examples/ProfilePage.js";
 import FriendsPage from "views/examples/FriendsPage.js";
 import RecommenderPage from "views/examples/RecommenderPage.js";
+import PlaylistsPage from "views/examples/PlaylistsPage.js";
+
 export default function App () {
   const [authBtnText, setAuthText] = useState("Log in");
   const [displayOptions, setDisplay] = useState(false);
@@ -53,7 +55,10 @@ export default function App () {
             path="/recommender"
             render={(props) => <RecommenderPage {...props}/>}
             />
-
+          <Route
+            path="/playlists"
+            render={(props) => <PlaylistsPage {...props}/>}
+            />
           <Redirect from="/" to="/components" />
         </Switch>
       </BrowserRouter>
