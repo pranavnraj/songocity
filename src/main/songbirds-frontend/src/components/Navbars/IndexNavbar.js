@@ -18,6 +18,7 @@
 import React, { useContext, useState } from "react";
 import AppContext from "../AppContext";
 import axios from 'axios';
+import {Accordion, Spinner} from 'react-bootstrap';
 import { Link, useHistory } from "react-router-dom";
 // reactstrap components
 import {
@@ -40,6 +41,7 @@ import {
 
 export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
+  const [loading, setLoading]= React.useState(false);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
   const history = useHistory();
@@ -103,7 +105,11 @@ export default function IndexNavbar() {
     return axios.get('/logout', {withCredentials: true});
   }
   const train = () => {
-      return axios.get('/data/train', {withCredentials: true});
+      setLoading(true);
+      axios.get('/data/train', {withCredentials: true}).then((response) => {
+        console.log("hello there")
+        setLoading(false);
+      });
   }
   const recommend = () => {
       return axios.get('/data/recommend', {withCredentials: true});
@@ -174,6 +180,8 @@ export default function IndexNavbar() {
          >
                 Train
          </Button>
+         {loading && <Spinner animation="border" role="status">
+                 </Spinner>}
       </NavItem>
       <NavItem>
         <Button
