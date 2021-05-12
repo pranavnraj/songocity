@@ -280,6 +280,7 @@ public class DataController {
         HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo;
         // TODO Retry after wait period time
         try {
+            api.reprimeAPI(user_id);
             playlistsInfo = api.generateUserData(user_id);
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
