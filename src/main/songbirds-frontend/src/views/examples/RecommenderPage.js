@@ -29,17 +29,20 @@ import {
   CardHeader, 
   CardBody,
   Input,
+  Jumbotron,
   Row,
   Col,
   Button
 } from "reactstrap";
 import FriendsList from "components/FriendsList";
+//import globalVar from "views/examples/globalVar.js"
 
 let ps = null;
 
 export default function RecommenderPage() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedUsers, setSelectedUsers] = useState([])
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [loading, setLoading]= React.useState(window.loading);
   const currFriends = useRef(null)
   let friendList = [] 
 
@@ -129,6 +132,13 @@ export default function RecommenderPage() {
     margin: 10
   }
 
+  const jumbotronStyle = {
+      borderColor: "#Ad2dca",
+      borderWidth: "2px",
+      color: "blue",
+      margin: 10
+    }
+
   const selectStyle = {
     option: provided => ({
       ...provided,
@@ -160,6 +170,7 @@ export default function RecommenderPage() {
               className="path"
               src={require("assets/img/path4.png").default}
             />
+            {!loading &&
             <Container className="align-items-center">
               <Card color="default">
                 <CardHeader>
@@ -180,15 +191,15 @@ export default function RecommenderPage() {
                             borderRadius: 5,
                             colors: {
                               ...theme.colors,
-                              primary: "#Ad2dca", 
+                              primary: "#Ad2dca",
                             }
                           })}
                         />
                       </Col>
                       <Col xs={3} md={2}>
-                        <Button 
-                          className="btn-round" 
-                          color="warning" 
+                        <Button
+                          className="btn-round"
+                          color="warning"
                           type="button"
                           size="sm"
                           onClick={recommend}
@@ -197,9 +208,9 @@ export default function RecommenderPage() {
                       </Col>
                     </Row>
                   </Container>
-                  <Input 
+                  <Input
                     type="text"
-                    placeholder="Search for a current friend based on username" 
+                    placeholder="Search for a current friend based on username"
                     style={searchBarStyle}
                     value={searchTerm}
                     onChange={getCurrFriendInput}
@@ -207,13 +218,20 @@ export default function RecommenderPage() {
                 </CardHeader>
                 <CardBody>
                   <FriendsList
-                    ref={currFriends} 
-                    names={dynamicSearch()} 
+                    ref={currFriends}
+                    names={dynamicSearch()}
                     keyword={searchTerm}
                   />
                 </CardBody>
               </Card>
-            </Container>
+            </Container>}
+            {loading && <Container className="align-items-center">
+                              <Jumbotron style={jumbotronStyle}>
+
+                                <h1 className="display-3" color="primary">The recommendation model is not yet finished training yet, please come back or reload in a few minutes!</h1>
+
+                              </Jumbotron>
+                            </Container>}
           </div>
           <Footer />
       </div>
