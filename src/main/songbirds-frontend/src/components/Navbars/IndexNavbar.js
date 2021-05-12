@@ -18,8 +18,10 @@
 import React, { useContext, useState } from "react";
 import AppContext from "../AppContext";
 import axios from 'axios';
-import {Accordion, Spinner} from 'react-bootstrap';
+//import {Accordion, Spinner} from 'react-bootstrap';
 import { Link, useHistory } from "react-router-dom";
+//import globalVar from "views/examples/globalVar.js";
+
 // reactstrap components
 import {
   Button,
@@ -39,15 +41,19 @@ import {
   UncontrolledTooltip,
 } from "reactstrap";
 
+window.landing = false;
+
 export default function IndexNavbar() {
   const [collapseOpen, setCollapseOpen] = React.useState(false);
-  const [loading, setLoading]= React.useState(false);
+  const [loading, setLoading]= React.useState(window.loading);
   const [collapseOut, setCollapseOut] = React.useState("");
   const [color, setColor] = React.useState("navbar-transparent");
   const history = useHistory();
   const context = useContext(AppContext);
   const clientID = "3cceff6ff3144834b845505bcfab9cd7";
   const redirectURI = "http://localhost:5000/callback/";
+  const MINUTE_MS = 900000;
+
   //const redirectURI = "http://songbirds-dev.us-west-1.elasticbeanstalk.com/callback/";
   React.useEffect(() => {
     ping().then((response) => {
@@ -62,6 +68,10 @@ export default function IndexNavbar() {
           }).catch((error) => {
             console.log(error.response);
           });
+
+    const interval = setInterval(() => {
+        ping();
+      }, MINUTE_MS );
     window.addEventListener("scroll", changeColor);
     return function cleanup() {
       window.removeEventListener("scroll", changeColor);
@@ -101,13 +111,23 @@ export default function IndexNavbar() {
   const primeLogin = (csrfStateValue) => {
     return axios.get('/prime_login', { params: { state: csrfStateValue } }, {withCredentials: true});
   }
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
+
   const logout = () => {
     return axios.get('/logout', {withCredentials: true});
   }
   const train = () => {
+      window.loading = true;
       setLoading(true);
       axios.get('/data/train', {withCredentials: true}).then((response) => {
         console.log("hello there")
+        window.loading = false;
         setLoading(false);
       });
   }
@@ -126,6 +146,8 @@ export default function IndexNavbar() {
               getSpotifyLogin(csrfStateValue).then((response2) => {
                 context.setAuthText("Log out");
                 context.setDisplay(true);
+                wait(500);
+                train();
               })
               .catch((error) => {
                 console.log(error.response);
@@ -173,15 +195,6 @@ export default function IndexNavbar() {
         >
           New Playlists
         </Button>
-      </NavItem>
-      <NavItem>
-         <Button
-                onClick={train}
-         >
-                Train
-         </Button>
-         {loading && <Spinner animation="border" role="status">
-                 </Spinner>}
       </NavItem>
       <NavItem>
         <Button
