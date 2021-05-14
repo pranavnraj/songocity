@@ -69,15 +69,19 @@ export default function RecommenderPage() {
   }
 
   const recommend = () => {
-    axios.post("/data/recommend", {"friendIDs": friendList},
-    {withCredentials: true}).then(response => {
-      if(response.status == 200)
+      let body = []
+      selectedUsers.forEach((item) => 
       {
-        return axios.get("/data/recommend", {withCredentials: true});
-      }
-    }).catch(error => {
-      console.log(error);
-    });
+        const friendID = item.value
+        body.push(friendID)
+      })
+      axios.post('/data/recommend', {"friendIDs": body}, {withCredentials: true})
+      .then((response) => {
+        console.log(response)  
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   const loadOptions = (inputValue, callback) => {
