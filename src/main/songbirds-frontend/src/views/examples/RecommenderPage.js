@@ -159,6 +159,11 @@ export default function RecommenderPage() {
     }),
   }
 
+  const onButtonClickHandler = () => 
+  {
+    window.alert('Recommendation sent')
+  }
+
   return (
     <>
       <IndexNavbar />
@@ -206,7 +211,11 @@ export default function RecommenderPage() {
                           color="warning"
                           type="button"
                           size="sm"
-                          onClick={recommend}
+                          onClick={() => 
+                            {
+                              recommend();
+                              onButtonClickHandler();
+                            }}
                         > Recommend
                         </Button>
                       </Col>
