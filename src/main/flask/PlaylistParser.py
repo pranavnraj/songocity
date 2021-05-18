@@ -116,7 +116,7 @@ def produceTestingData(friend_id_list):
 def produceRecs(preds, test_index_to_track, training_data):
 	recs = []
 	for index, rec in enumerate(preds):
-		if rec[1] >= 0.90 and test_index_to_track[index] not in training_data:
+		if rec[1] >= 0.70 and test_index_to_track[index] not in training_data:
 			recs.append(index)
 
 	track_recs = []
