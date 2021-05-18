@@ -101,7 +101,7 @@ public class DataController {
 
     @RequestMapping(value = "/add_friend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity<String> addFriend(@RequestBody Friend friend, HttpSession session) {
+    public ResponseEntity<String> addFriend(@RequestBody Friends friends, HttpSession session) {
 
         String user_id;
         try {
@@ -110,7 +110,10 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
         }
 
-        String flag = mongoClient.addFriend(user_id, friend.getFriend());
+        String flag = "";
+        for (String friend: friends.getFriendIDs()) {
+            flag = mongoClient.addFriend(user_id, friend);
+        }
 
         JSONObject obj = new JSONObject();
         obj.put("status", flag);
