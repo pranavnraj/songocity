@@ -190,6 +190,10 @@ public class SpotifyWebAPI {
                     PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                     for (PlaylistTrack track : items) {
+                        if (track.getTrack() == null) {
+                            continue;
+                        }
+
                         // TODO Toggle between recency and all
                         Date currentDate = new Date();
                         Date trackDate = track.getAddedAt();
@@ -207,6 +211,10 @@ public class SpotifyWebAPI {
                         PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                         for (PlaylistTrack track : items) {
+                            if (track.getTrack() == null) {
+                                continue;
+                            }
+                            
                             playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                         }
                         offset += 100;
@@ -216,6 +224,10 @@ public class SpotifyWebAPI {
                     PlaylistTrack[] items = playlistTrackPaging.getItems();
 
                     for (PlaylistTrack track : items) {
+                        if (track.getTrack() == null) {
+                            continue;
+                        }
+
                         // TODO Toggle between recency and all
                         Date currentDate = new Date();
                         Date trackDate = track.getAddedAt();
