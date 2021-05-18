@@ -75,10 +75,14 @@ export default function FriendsPage() {
   }
 
   const addFriends = () => {
+    let ids = []
     selectedUsers.forEach(selection => {
-      const friendId = selection.value
+       const friendID = selection.value
+       ids.push(friendID)
+    })
+
       axios.post('/data/add_friend', {
-        "friend": friendId,
+        "friendIDs": ids,
       }, {withCredentials: true})
       .then((response) => {
         console.log(response)
@@ -95,7 +99,7 @@ export default function FriendsPage() {
       .catch((error) => {
         console.log(error)
       })
-    })
+
   }
 
   const loadOptions = (inputValue, callback) => {
