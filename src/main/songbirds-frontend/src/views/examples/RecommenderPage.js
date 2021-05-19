@@ -75,8 +75,12 @@ export default function RecommenderPage() {
         const friendID = item.value
         body.push(friendID)
       })
+      if (body.length == 0) {
+        return;
+      }
       axios.post('/data/recommend', {"friendIDs": body}, {withCredentials: true})
       .then((response) => {
+        window.alert('Recommended Playlist created, check the New Playlists window to access it')
         console.log(response)  
       })
       .catch((error) => {
@@ -161,7 +165,7 @@ export default function RecommenderPage() {
 
   const onButtonClickHandler = () => 
   {
-    window.alert('Recommendation sent')
+    window.alert('Creating new playlist...')
   }
 
   return (
@@ -213,28 +217,17 @@ export default function RecommenderPage() {
                           size="sm"
                           onClick={() => 
                             {
-                              recommend();
                               onButtonClickHandler();
+                              recommend();
                             }}
                         > Recommend
                         </Button>
                       </Col>
                     </Row>
                   </Container>
-                  <Input
-                    type="text"
-                    placeholder="Search for a current friend based on username"
-                    style={searchBarStyle}
-                    value={searchTerm}
-                    onChange={getCurrFriendInput}
-                  />
                 </CardHeader>
                 <CardBody>
-                  <FriendsList
-                    ref={currFriends}
-                    names={dynamicSearch()}
-                    keyword={searchTerm}
-                  />
+                                  <label>Choose one or more of your friends using the search bar and hit "Recommend" to create playlists catered to you based on their interests! Feel free to mix and match multiple friends to try different playlist combinations. </label>
                 </CardBody>
               </Card>
             </Container>}
