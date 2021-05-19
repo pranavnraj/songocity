@@ -214,7 +214,7 @@ public class SpotifyWebAPI {
                             if (track.getTrack() == null) {
                                 continue;
                             }
-                            
+
                             playlistTracks.put(track.getTrack().getId(), track.getTrack().getName());
                         }
                         offset += 100;
@@ -269,7 +269,9 @@ public class SpotifyWebAPI {
         return numTracks;
     }
 
-    public List<String> getFilteredTracks(List<String> track_uris) {
+    public synchronized List<String> getFilteredTracks(List<String> track_uris, String userID) {
+        this.reprimeAPI(userID);
+
         HashMap<String, String> filteredList = new HashMap<String, String>();
 
         String[] ids = track_uris.toArray(new String[0]);
@@ -550,7 +552,8 @@ public class SpotifyWebAPI {
         return playlistsInfo;
     }
 
-    public String createPlaylist(String userId, String title){
+    public synchronized String createPlaylist(String userId, String title){
+        this.reprimeAPI(userId);
 
         final CreatePlaylistRequest createPlaylistRequest = spotifyApi.createPlaylist(userId, title).description("Playlist created based on friends in title tastes").build();
         String playlistID = "";
@@ -568,7 +571,8 @@ public class SpotifyWebAPI {
 
     }
 
-    public void addTracksToPlaylist(String playlistID, String[] recTracks){
+    public synchronized void addTracksToPlaylist(String playlistID, String[] recTracks, String userID) {
+        this.reprimeAPI(userID);
 
         for(int i = 0; i < recTracks.length; i += 75) {
 
