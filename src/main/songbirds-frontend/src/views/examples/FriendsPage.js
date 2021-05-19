@@ -225,13 +225,9 @@ export default function FriendsPage() {
                       </Col>
                     </Row>
                   </Container>
-                  <Input 
-                    type="text"
-                    placeholder="Search for a current friend based on username" 
-                    style={searchBarStyle}
-                    value={searchTerm}
-                    onChange={getCurrFriendInput}
-                  />
+                  <CardBody>
+                                                    <label>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</label>
+                                  </CardBody>
                 </CardHeader>
                 <CardBody>
                   <FriendsList
