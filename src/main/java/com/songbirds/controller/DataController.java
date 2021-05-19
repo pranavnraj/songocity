@@ -252,14 +252,14 @@ public class DataController {
         String title = friends.getFriendIDs().toString() + "Playlist";
         String playlistID = api.createPlaylist(user_id, title);
 
-        track_URIs = api.getFilteredTracks(track_URIs);
+        track_URIs = api.getFilteredTracks(track_URIs, user_id);
 
         String[] trackURIs = new String[track_URIs.size()];
         for(int i = 0; i < track_URIs.size(); i += 1) {
             trackURIs[i] = "spotify:track:" + track_URIs.get(i);
         }
 
-        api.addTracksToPlaylist(playlistID, trackURIs);
+        api.addTracksToPlaylist(playlistID, trackURIs, user_id);
         mongoClient.addNewPlaylist(user_id, playlistID, title);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
