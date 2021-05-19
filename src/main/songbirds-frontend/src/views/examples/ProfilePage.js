@@ -158,20 +158,6 @@ export default function ProfilePage() {
                           Basic Info
                         </NavLink>
                       </NavItem>
-                      <NavItem>
-                        <NavLink
-                          className={classnames({
-                            active: tabs === 2,
-                          })}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setTabs(2);
-                          }}
-                          href="#pablo"
-                        >
-                          Settings
-                        </NavLink>
-                      </NavItem>
                     </Nav>
                     <TabContent
                       className="tab-subcategories"
