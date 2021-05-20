@@ -12,7 +12,7 @@ class FriendsList extends Component {
                 </ListGroup>
             )
         } else if(this.props.keyword.length == 0) {
-            return <p>You currently don't have any friend on Spotify. </p>
+            return <p>You currently don't have any friends on Songbirds. </p>
         } else {
             return <p>No friend matching current search keyword(s)</p>
         }
