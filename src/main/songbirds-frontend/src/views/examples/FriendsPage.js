@@ -191,7 +191,10 @@ export default function FriendsPage() {
             <Container className="align-items-center">
               <Card color="default">
                 <CardHeader>
-                  <h4 className="title">Friends List</h4>
+                  <h4 className="title">Friend List</h4>
+                  <CardBody>
+                                                                      <p>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</p>
+                                                    </CardBody>
                   <Container fluid>
                     <Row>
                       <Col xs={9} md={10}>
@@ -225,9 +228,6 @@ export default function FriendsPage() {
                       </Col>
                     </Row>
                   </Container>
-                  <CardBody>
-                                                    <label>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</label>
-                                  </CardBody>
                 </CardHeader>
                 <CardBody>
                   <FriendsList
