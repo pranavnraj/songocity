@@ -187,12 +187,12 @@ export default function RecommenderPage() {
             <Container className="align-items-center">
               <Card color="default">
                 <CardHeader>
-                  <h4 className="title">Recommender List</h4>
+                  <h4 className="title">Pick friends to get recommendations from</h4>
                   <Container fluid>
                     <Row>
                       <Col xs={9} md={10}>
                         <AsyncSelect
-                          placeholder="Enter friend to get recs from"
+                          placeholder="Enter friend(s) to get recs from"
                           isMulti
                           cacheOptions
                           loadOptions={loadOptions}
@@ -227,17 +227,15 @@ export default function RecommenderPage() {
                   </Container>
                 </CardHeader>
                 <CardBody>
-                                  <label>Choose one or more of your friends using the search bar and hit "Recommend" to create playlists catered to you based on their interests! Feel free to mix and match multiple friends to try different playlist combinations. </label>
+                                  <p>Choose one or more of your friends using the search bar and hit "Recommend" to create playlists catered to you based on their interests! Feel free to mix and match multiple friends to try different playlist combinations. </p>
                 </CardBody>
               </Card>
             </Container>}
-            {loading && <Container className="align-items-center">
-                              <Jumbotron style={jumbotronStyle}>
-
+            {loading && <Card className="card-coin card-plain"> <Container className="align-items-center">
+                              <CardHeader>
                                 <h1 className="display-3" color="primary">The recommendation model is not yet finished training yet, please come back or reload in a few minutes!</h1>
-
-                              </Jumbotron>
-                            </Container>}
+                              </CardHeader>
+                            </Container> </Card>}
           </div>
           <Footer />
       </div>
