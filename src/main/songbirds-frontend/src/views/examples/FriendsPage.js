@@ -81,26 +81,44 @@ export default function FriendsPage() {
        ids.push(friendID)
     })
 
-      axios.post('/data/add_friend', {
-        "friendIDs": ids,
-      }, {withCredentials: true})
-      .then((response) => {
-        console.log(response)
-        getFriendsList().then((res) => {
-          //friendList = res.data.friends
-          setFriendList(res.data.friends)
-          currFriends.current.names = dynamicSearch()
-          console.log(currFriends.current.names)
-        })
-        .catch((err) => {
-          console.log(err)
-        })  
+    axios.post('/data/add_friend', {
+      "friendIDs": ids,
+    }, {withCredentials: true})
+    .then((response) => {
+      console.log(response)
+      getFriendsList().then((res) => {
+        //friendList = res.data.friends
+        setFriendList(res.data.friends)
+        currFriends.current.names = dynamicSearch()
+        console.log(currFriends.current.names)
       })
-      .catch((error) => {
-        console.log(error)
-      })
+      .catch((err) => {
+        console.log(err)
+      })  
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 
   }
+
+  const deleteFriend = (friend) => () => {
+    axios.delete(
+        '/data/remove_friend?friend=' + friend, 
+        {withCredentials: true}
+    ).then((response) => {
+      getFriendsList().then((res) => {
+        setFriendList(res.data.friends)
+        currFriends.current.names = dynamicSearch()
+        console.log(currFriends.current.names)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }).catch((error) => {
+        console.log(error)
+    })
+}
 
   const loadOptions = (inputValue, callback) => {
     // Async load list of users that fit the query
@@ -234,6 +252,7 @@ export default function FriendsPage() {
                     ref={currFriends} 
                     names={dynamicSearch()} 
                     keyword={searchTerm}
+                    deleteFriend={deleteFriend}
                   />
                 </CardBody>
               </Card>
