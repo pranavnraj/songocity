@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import org.json.*;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import org.springframework.http.MediaType;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -45,6 +48,38 @@ public class AuthController {
     public ResponseEntity<String> ping(HttpSession session) {
         LOGGER.log(Level.INFO, "PING: User " + session.getAttribute("user_id").toString());
         return ResponseEntity.status(HttpStatus.OK).body(session.getAttribute("user_id").toString());
+    }
+
+    @RequestMapping(value = "/authenticated", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    @ResponseBody
+    public ResponseEntity<String> isAuthenticated(HttpServletRequest request) {
+
+        Cookie[] cookies = request.getCookies();
+        boolean authenticatedFlag = false;
+
+        if (cookies != null && cookies.length > 0) {
+            for (Cookie cookie : cookies) {
+
+                if (cookie.getName().equalsIgnoreCase("SESSION")) {
+                    byte[] decodedBytes = Base64.getDecoder().decode(cookie.getValue());
+                    String sessionID = new String(decodedBytes);
+                    if( mongoClient.sessionCookieExists(sessionID) != null){
+                        authenticatedFlag = true;
+                    }
+                }
+            }
+        }
+
+        JSONObject obj = new JSONObject();
+        if (authenticatedFlag) {
+            obj.put("authenticated", "true");
+            return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+        } else {
+            obj.put("authenticated", "false");
+            return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+        }
+
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
