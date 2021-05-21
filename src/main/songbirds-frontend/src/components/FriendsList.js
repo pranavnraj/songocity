@@ -13,13 +13,12 @@ class FriendsList extends Component {
                         <FriendEntry 
                             name={name} 
                             deleteFriend={this.props.deleteFriend}
-                        />)}
+                        />
+                    )}
                 </ListGroup>
             )
-        } else if(this.props.keyword.length == 0) {
-            return <p>You currently don't have any friends on Songbirds. </p>
         } else {
-            return <p>No friend matching current search keyword(s)</p>
+            return <p>You currently don't have any friends on Songbirds. </p>
         }
     }
 

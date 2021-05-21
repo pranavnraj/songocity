@@ -28,7 +28,6 @@ import {
   Card, 
   CardHeader, 
   CardBody,
-  Input,
   Row,
   Col,
   Button
@@ -64,16 +63,6 @@ export default function FriendsPage() {
     });
   }
 
-  const getCurrFriendInput = (e) => {
-    // Store user input in current friend search bar
-    setSearchTerm(e.target.value)
-  }
-
-  const dynamicSearch = () => {
-    // Current friend query pattern matching
-    return friendList.filter(name => name.toLowerCase().includes(searchTerm.toString().toLowerCase()))
-  }
-
   const addFriends = () => {
     let ids = []
     selectedUsers.forEach(selection => {
@@ -89,7 +78,7 @@ export default function FriendsPage() {
       getFriendsList().then((res) => {
         //friendList = res.data.friends
         setFriendList(res.data.friends)
-        currFriends.current.names = dynamicSearch()
+        currFriends.current.names = friendList
         console.log(currFriends.current.names)
       })
       .catch((err) => {
@@ -107,9 +96,10 @@ export default function FriendsPage() {
         '/data/remove_friend?friend=' + friend, 
         {withCredentials: true}
     ).then((response) => {
+      console.log(response)
       getFriendsList().then((res) => {
         setFriendList(res.data.friends)
-        currFriends.current.names = dynamicSearch()
+        currFriends.current.names = friendList
         console.log(currFriends.current.names)
       })
       .catch((err) => {
@@ -118,7 +108,7 @@ export default function FriendsPage() {
     }).catch((error) => {
         console.log(error)
     })
-}
+  }
 
   const loadOptions = (inputValue, callback) => {
     // Async load list of users that fit the query
@@ -168,13 +158,6 @@ export default function FriendsPage() {
     };
   },[]);
 
-  const searchBarStyle = {
-    borderColor: "#Ad2dca",
-    borderWidth: "2px",
-    color: "white",
-    margin: 10
-  }
-
   const selectStyle = {
     option: provided => ({
       ...provided,
@@ -211,8 +194,8 @@ export default function FriendsPage() {
                 <CardHeader>
                   <h4 className="title">Friend List</h4>
                   <CardBody>
-                                                                      <p>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</p>
-                                                    </CardBody>
+                    <p>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</p>
+                  </CardBody>
                   <Container fluid>
                     <Row>
                       <Col xs={9} md={10}>
@@ -250,8 +233,7 @@ export default function FriendsPage() {
                 <CardBody>
                   <FriendsList
                     ref={currFriends} 
-                    names={dynamicSearch()} 
-                    keyword={searchTerm}
+                    names={friendList} 
                     deleteFriend={deleteFriend}
                   />
                 </CardBody>
