@@ -56,8 +56,8 @@ export default function IndexNavbar() {
 
   //const redirectURI = "http://songbirds-dev.us-west-1.elasticbeanstalk.com/callback/";
   React.useEffect(() => {
-    ping().then((response) => {
-            if(response.status == 200){
+    authenticated().then((response) => {
+            if(response.data.authenticated == "true"){
               context.setAuthText("Log out");
               context.setDisplay(true);
             }
@@ -126,7 +126,6 @@ function wait(ms){
       window.loading = true;
       setLoading(true);
       axios.get('/data/train', {withCredentials: true}).then((response) => {
-        console.log("hello there")
         window.loading = false;
         setLoading(false);
       });
@@ -137,6 +136,23 @@ function wait(ms){
   const ping = () => {
       return axios.get('/ping', {withCredentials: true});
   }
+  const authenticated = () => {
+        return axios.get('/authenticated', {withCredentials: true});
+    }
+  const checkAuth = function() {
+    authenticated().then((response) => {
+      if(response.data.authenticated == "true") {
+        train()
+        return;
+      }
+      else {
+        wait(500)
+        checkAuth();
+      }
+    }).catch((error) => {
+      console.log(error.response);
+    });;
+  }
   const updateLoginHomepage = () => {
     if(context.authBtnText == "Log in") {
       var csrfStateValue = Math.random().toString(36).slice(2);
@@ -146,8 +162,7 @@ function wait(ms){
               getSpotifyLogin(csrfStateValue).then((response2) => {
                 context.setAuthText("Log out");
                 context.setDisplay(true);
-                wait(500);
-                train();
+                checkAuth()
               })
               .catch((error) => {
                 console.log(error.response);
