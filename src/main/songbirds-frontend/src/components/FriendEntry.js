@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useRef } from 'react'
 import { Button, ListGroupItem } from 'reactstrap'
 
 const listItemStyle = {
@@ -9,6 +9,7 @@ const listItemStyle = {
 }
 
 class FriendEntry extends Component {
+
     render() {
         return (
             <ListGroupItem style={listItemStyle}>
@@ -20,7 +21,11 @@ class FriendEntry extends Component {
                 />
                 {this.props.name}
                 <div style={{float: "right", margin: "10px"}}>
-                    <Button color="danger">Delete</Button>
+                    <Button 
+                        color="danger" 
+                        onClick={this.props.deleteFriend(this.props.name)}>
+                            Delete
+                    </Button>
                 </div>
             </ListGroupItem>
         )
