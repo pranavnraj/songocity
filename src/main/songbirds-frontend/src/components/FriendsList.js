@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { ListGroup } from 'reactstrap'
+
 import FriendEntry from './FriendEntry'
 
 class FriendsList extends Component {
@@ -8,7 +9,11 @@ class FriendsList extends Component {
         if(list.length > 0) {
             return (
                 <ListGroup>
-                    {this.props.names.map(name => <FriendEntry name={name} />)}
+                    {this.props.names.map(name => 
+                        <FriendEntry 
+                            name={name} 
+                            deleteFriend={this.props.deleteFriend}
+                        />)}
                 </ListGroup>
             )
         } else if(this.props.keyword.length == 0) {
