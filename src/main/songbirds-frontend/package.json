@@ -36,9 +36,10 @@
     "@testing-library/react": "11.2.2",
     "@testing-library/user-event": "12.2.2",
     "axios": "^0.21.1",
-    "bootstrap": "4.5.3",
+    "bootstrap": "^4.6.0",
     "chart.js": "2.9.4",
     "classnames": "2.2.6",
+    "create-react-context": "^0.3.0",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.8",
     "moment": "2.29.1",
@@ -47,7 +48,7 @@
     "nouislider": "14.6.3",
     "perfect-scrollbar": "1.5.0",
     "react": "17.0.1",
-    "react-bootstrap": "1.5.2",
+    "react-bootstrap": "^1.5.2",
     "react-chartjs-2": "2.11.1",
     "react-datetime": "3.0.4",
     "react-dom": "17.0.1",
@@ -91,5 +92,8 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000"
+  "proxy": "http://localhost:5000",
+  "devDependencies": {
+    "@babel/helper-define-map": "^7.13.12"
+  }
 }
