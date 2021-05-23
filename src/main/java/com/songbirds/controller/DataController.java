@@ -172,6 +172,10 @@ public class DataController {
 
         List<Document> playlistList = mongoClient.getPlaylistList(user_id);
 
+        if (playlistList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body("No playlists found");
+        }
+
         JSONObject obj = new JSONObject();
 
         for (Document playlistInfo: playlistList) {
