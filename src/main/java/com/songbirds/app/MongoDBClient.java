@@ -246,6 +246,10 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
         Document doc = collection.find(eq("_id", userID)).first();
 
+        if (doc == null) {
+            return new ArrayList<Document>();
+        }
+
         List<Document> playlistList = doc.getList("playlists", Document.class);
 
         return playlistList;
