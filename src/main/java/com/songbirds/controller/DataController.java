@@ -236,11 +236,13 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
         }
 
-        LOGGER.log(Level.INFO, friends.getFriendIDs().toString());
+        List<String> friendIDs = mongoClient.friendsToIDs(friends.getFriendIDs());
+
+        LOGGER.log(Level.INFO, friendIDs.toString());
 
         JSONObject friendIDJson = new JSONObject();
         friendIDJson.put("user_id", user_id);
-        friendIDJson.put("friends", friends.getFriendIDs());
+        friendIDJson.put("friends", friendIDs);
 
         HttpEntity<String> requestEntity = new HttpEntity<String>(friendIDJson.toString(), headers);
         ResponseEntity<Friends> responseEntity = null;
