@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.mongodb.client.model.Filters.*;
 import static com.mongodb.client.model.Updates.*;
@@ -106,12 +107,13 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
 
         String pattern = ".*" + id + ".*";
-        FindIterable<Document> col = collection.find(regex("_id", pattern));
+        Pattern dbPattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        FindIterable<Document> col = collection.find(regex("display_name", dbPattern));
 
         List<String> matchedStrings = new ArrayList<String>();
 
         for(Document doc: col) {
-            matchedStrings.add(doc.getString("_id"));
+            matchedStrings.add(doc.getString("display_name"));
         }
 
         return matchedStrings;
@@ -146,6 +148,20 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.FRIENDS_COLLECTION);
 
         collection.updateOne(eq("_id", userId), pull("friends", deletedFriendID));
+    }
+
+    public List<String> friendsToIDs(List<String> friendNames) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        List<String> friendIDs = new ArrayList<String>();
+
+        for (String name: friendNames) {
+            Document friendDoc = collection.find(eq("display_name", name)).first();
+            friendIDs.add(friendDoc.getString("_id"));
+        }
+
+        return friendIDs;
+
     }
 
     public void storeAccessAndRefreshTokens(String userId, String accessToken, String refreshToken, long expiresIn,
