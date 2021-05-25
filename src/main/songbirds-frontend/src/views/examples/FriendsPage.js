@@ -194,13 +194,13 @@ export default function FriendsPage() {
                 <CardHeader>
                   <h4 className="title">Friend List</h4>
                   <CardBody>
-                    <p>Start adding friends who you may know. After you have added your friends, go to the Recommender page to create playlists based on your friends taste.</p>
+                    <p>Start adding people as friends who are already on Songbirds. After you have added your friends, go to the Recommender page to create playlists for yourself based on their taste.</p>
                   </CardBody>
                   <Container fluid>
                     <Row>
                       <Col xs={9} md={10}>
                         <AsyncSelect
-                          placeholder="Enter friend ID to add more friends"
+                          placeholder="Search names to add as friends"
                           isMulti
                           cacheOptions
                           loadOptions={loadOptions}
