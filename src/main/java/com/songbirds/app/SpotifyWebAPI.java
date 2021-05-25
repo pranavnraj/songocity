@@ -555,7 +555,7 @@ public class SpotifyWebAPI {
     public synchronized String createPlaylist(String userId, String title){
         this.reprimeAPI(userId);
 
-        final CreatePlaylistRequest createPlaylistRequest = spotifyApi.createPlaylist(userId, title).description("Playlist created based on friends in title tastes").build();
+        final CreatePlaylistRequest createPlaylistRequest = spotifyApi.createPlaylist(userId, title).description("Playlist created based on your friends' tastes").build();
         String playlistID = "";
         try {
             final Playlist playlist = createPlaylistRequest.execute();
