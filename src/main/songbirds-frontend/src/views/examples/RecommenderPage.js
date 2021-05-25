@@ -192,7 +192,7 @@ export default function RecommenderPage() {
                     <Row>
                       <Col xs={9} md={10}>
                         <AsyncSelect
-                          placeholder="Enter friend(s) to get recs from"
+                          placeholder="Search friend(s) to get recs"
                           isMulti
                           cacheOptions
                           loadOptions={loadOptions}
