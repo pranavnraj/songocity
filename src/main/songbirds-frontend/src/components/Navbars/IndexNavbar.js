@@ -190,7 +190,7 @@ function wait(ms){
           color="success"
           onClick={() => history.push("/friends")}
         >
-          Friends
+          Friends (Start Here)
         </Button>
       </NavItem>
       <NavItem>
