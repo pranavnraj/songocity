@@ -22,6 +22,7 @@ import org.springframework.http.*;
 
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -186,7 +187,7 @@ public class DataController {
             } catch(ServiceUnavailableException e) {
                 return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
             } catch(SpotifyWebApiException e) {
-                System.out.println("Error");
+                LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
             }
@@ -250,6 +251,13 @@ public class DataController {
             responseEntity = rest.exchange(AppConstants.FLASK_SERVER + "/recommend", HttpMethod.POST, requestEntity, Friends.class);
         } catch (ResourceAccessException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Machine Learning Server Unavailable");
+        } catch (HttpClientErrorException e) {
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
+            e.printStackTrace();
+            if (e.getMessage().contains("404")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: friend resource data is not found in server");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown ML Server Error");
         }
 
         Friends friendRecs = responseEntity.getBody();
@@ -294,7 +302,7 @@ public class DataController {
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
-            System.out.println("Error");
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
@@ -318,7 +326,7 @@ public class DataController {
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
-            System.out.println("Error");
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
@@ -329,7 +337,7 @@ public class DataController {
         } catch (ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
-            System.out.println("Error");
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }

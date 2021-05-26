@@ -86,7 +86,11 @@ def produceTestingData(friend_id_list):
 		key = 'UserSongs/' + id + '.txt'
 		obj = s3.Object(bucket, key)
 
-		json_data = obj.get()['Body'].read().decode('utf-8')
+		try:
+			json_data = obj.get()['Body'].read().decode('utf-8')
+		except s3.meta.client.exceptions.NoSuchKey:
+			return "NoSuchKey in Bucket(friend test data is not in bucket)"
+
 		data = json.loads(json_data)
 		test_data.update(data)
 
