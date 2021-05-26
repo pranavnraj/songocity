@@ -220,7 +220,7 @@ public class DataController {
         }
 
         mongoClient.deletePlaylist(user_id, playlistID);
-        api.unfollowPlaylist(playlistID);
+        api.unfollowPlaylist(user_id, playlistID);
 
         return ResponseEntity.status(HttpStatus.OK).build();
 
