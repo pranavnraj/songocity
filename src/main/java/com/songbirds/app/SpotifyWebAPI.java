@@ -3,6 +3,7 @@ package com.songbirds.app;
 import com.songbirds.util.AppConstants;
 import com.songbirds.util.LoginCredentialConstants;
 import com.songbirds.util.MongoDBConstants;
+import com.wrapper.spotify.exceptions.detailed.InternalServerErrorException;
 import com.wrapper.spotify.exceptions.detailed.ServiceUnavailableException;
 import com.wrapper.spotify.exceptions.detailed.TooManyRequestsException;
 import com.wrapper.spotify.model_objects.special.SnapshotResult;
@@ -523,6 +524,13 @@ public class SpotifyWebAPI {
                     } catch (InterruptedException a) {
                         a.printStackTrace();
                     }
+                } catch (InternalServerErrorException e) {
+                    LOGGER.log(Level.SEVERE, "Spotify Web API error: trying again");
+                    try {
+                        Thread.sleep(3000);
+                    } catch (InterruptedException a) {
+                        a.printStackTrace();
+                    }
                 } catch (IOException |  ParseException e) {
                     e.printStackTrace();
                 }
@@ -597,7 +605,8 @@ public class SpotifyWebAPI {
         }
     }
 
-    public String unfollowPlaylist(String playlistID) {
+    public synchronized String unfollowPlaylist(String userID, String playlistID) {
+        this.reprimeAPI(userID);
 
         String response;
         UnfollowPlaylistRequest unfollowPlaylistRequest = spotifyApi.unfollowPlaylist(playlistID).build();
