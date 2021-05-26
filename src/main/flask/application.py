@@ -34,6 +34,8 @@ def createRecommendation():
 	#print("BREAK")
 
 	testing_data = PlaylistParser.produceTestingData(friend_id_list)
+	if type(testing_data) is str:
+		return jsonify(testing_data), 404
 	#print(testing_data)
 
 	test_index_to_track = {}
