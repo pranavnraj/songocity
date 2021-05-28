@@ -338,12 +338,11 @@ public class SpotifyWebAPI {
                             System.out.println(track.getId());
                             System.out.println(track.getName());
                             tracksInfo.put(trackInfo.getId(), new HashMap<String, Float>());
-                            //tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
-                            //tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
-                            //tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
+                            tracksInfo.get(trackInfo.getId()).put("popularity", (float)track.getPopularity());
+                            tracksInfo.get(trackInfo.getId()).put("duration", (float)track.getDurationMs());
+                            tracksInfo.get(trackInfo.getId()).put("explicit", (float)explicitFlag);
                             tracksInfo.get(trackInfo.getId()).put("acousticness", trackInfo.getAcousticness());
                             tracksInfo.get(trackInfo.getId()).put("danceability", trackInfo.getDanceability());
-                            tracksInfo.get(trackInfo.getId()).put("duration", trackInfo.getDanceability());
                             tracksInfo.get(trackInfo.getId()).put("energy", trackInfo.getEnergy());
                             tracksInfo.get(trackInfo.getId()).put("instrumentalness", trackInfo.getInstrumentalness());
                             tracksInfo.get(trackInfo.getId()).put("mainKey", trackInfo.getKey().floatValue());
