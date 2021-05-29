@@ -292,6 +292,10 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
         }
 
+        if (mongoClient.isTrained(user_id)) {
+            return ResponseEntity.status(HttpStatus.OK).body("Model already trained for this user");
+        }
+
         LOGGER.log(Level.INFO, "Generating training data");
 
         HashMap<String, HashMap<String, HashMap<String, Float>>> playlistsInfo;
@@ -367,6 +371,8 @@ public class DataController {
         } catch (ResourceAccessException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Machine Learning Server Unavailable");
         }
+
+        mongoClient.markTrainedFlag(user_id);
 
         return ResponseEntity.status(responseEntity.getStatusCode()).build();
 
