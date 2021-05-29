@@ -83,7 +83,8 @@ public class MongoDBClient {
         Document doc = new Document("_id", userInfo.get("id"))
                             .append("display_name", userInfo.get("display_name"))
                             .append("email", userInfo.get("email"))
-                            .append("profile_pic_url", userInfo.get("profile_pic"));
+                            .append("profile_pic_url", userInfo.get("profile_pic"))
+                            .append("is_trained", false);
 
         collection.insertOne(doc);
     }
@@ -258,9 +259,9 @@ public class MongoDBClient {
         return "Added Friend";
     }
 
-    public List<Document> getPlaylistList(String userID) {
+    public List<Document> getPlaylistList(String userId) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PLAYLISTS_COLLECTION);
-        Document doc = collection.find(eq("_id", userID)).first();
+        Document doc = collection.find(eq("_id", userId)).first();
 
         if (doc == null) {
             return new ArrayList<Document>();
@@ -276,6 +277,23 @@ public class MongoDBClient {
 
         Bson delete = Updates.pull("playlists", new Document("playlist_id", deletedPlaylistID));
         collection.updateOne(eq("_id", userId), delete);
+    }
+
+    public boolean isTrained(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        if (doc.containsKey("is_trained") && doc.getBoolean("is_trained")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void markTrainedFlag(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        collection.updateOne(eq("_id", userId), set("is_trained", true));
     }
 
 
