@@ -134,11 +134,11 @@ public class AuthController {
         LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);
 
         synchronized (currentLoginThreadLock) {
-            session.setAttribute("user_id", id);
-            session.setAttribute("name", userInfo.get("display_name"));
             if (mongoClient.getProfile(userInfo.get("id")) == null) {
                 mongoClient.createNewProfile(userInfo);
             }
+            session.setAttribute("user_id", id);
+            session.setAttribute("name", userInfo.get("display_name"));
 
             currentLoginThreadLock.setRdyFlag();
             currentLoginThreadLock.notifyAll();
