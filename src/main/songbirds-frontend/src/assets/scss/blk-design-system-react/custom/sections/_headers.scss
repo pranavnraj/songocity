@@ -6,7 +6,6 @@
     .container{
         color: $white;
     }
-
     .title{
         color: $white;
     }
@@ -19,6 +18,31 @@
             padding-top: 20vh;
         }
     }
+}
+
+.page-header1{
+     padding-top: 10vh;
+
+     .container{
+             color: $white;
+     }
+
+     .title{
+             color: $white;
+     }
+
+    .carousel .carousel-indicators{
+            bottom: 60px;
+        }
+
+     &.header-small{
+             height: 65vh;
+             min-height: 65vh;
+
+             .container{
+                 padding-top: 10vh;
+             }
+         }
 }
 
 .landing-page {
