@@ -620,7 +620,7 @@ public class SpotifyWebAPI {
         return response;
     }
 
-    public synchronized String storeTokensUponLogin(String authCode) {
+    public synchronized String storeTokensUponLogin(String authCode) throws SpotifyWebApiException {
 
         SpotifyApi tempSpotifyApi = new SpotifyApi.Builder()
                 .setClientId(LoginCredentialConstants.CLIENT_ID)
@@ -643,9 +643,9 @@ public class SpotifyWebAPI {
             mongoClient.storeAccessAndRefreshTokens(id, tempSpotifyApi.getAccessToken(), tempSpotifyApi.getRefreshToken(),
                     (long)authorizationCodeCredentials.getExpiresIn()*1000, System.currentTimeMillis());
 
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            System.out.println("First time access token error");
-            System.out.println("Error: " + e.getMessage());
+        } catch (IOException | ParseException e) {
+            LOGGER.log(Level.SEVERE,"Error: " + e.getMessage());
+            e.printStackTrace();
         }
 
         return id;
