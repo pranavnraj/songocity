@@ -104,7 +104,7 @@ public class MongoDBClient {
         collection.deleteOne(eq("_id", id));
     }
 
-    public List<String> findMatchingFriends(String id) {
+    public List<String> findMatchingFriends(String id, String userId) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
 
         String pattern = ".*" + id + ".*";
@@ -114,7 +114,9 @@ public class MongoDBClient {
         List<String> matchedStrings = new ArrayList<String>();
 
         for(Document doc: col) {
-            matchedStrings.add(doc.getString("display_name"));
+            if (!doc.getString("_id").equals(userId)) {
+                matchedStrings.add(doc.getString("display_name"));
+            }
         }
 
         return matchedStrings;
