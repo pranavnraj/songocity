@@ -3,6 +3,8 @@ package com.songbirds.controller;
 import com.songbirds.app.MongoDBClient;
 import com.songbirds.app.SpotifyWebAPI;
 import com.songbirds.objects.LoginThreadLock;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.exceptions.detailed.BadRequestException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -128,7 +130,16 @@ public class AuthController {
         LOGGER.setLevel(Level.INFO);
 
         //api.initializeAPI();
-        String id = api.storeTokensUponLogin(code);
+        String id;
+        try {
+            id = api.storeTokensUponLogin(code);
+        } catch (BadRequestException e) {
+            return "Invalid authorization";
+        } catch (SpotifyWebApiException e) {
+            LOGGER.log(Level.SEVERE, "Error: " + e.getMessage());
+            e.printStackTrace();
+            return "Unknown Internal Error";
+        }
         HashMap<String, String> userInfo = api.currentUserAPI(id);
 
         LoginThreadLock currentLoginThreadLock = LoginThreadLock.getLoginLock(state);

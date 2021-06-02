@@ -92,7 +92,14 @@ public class DataController {
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query, HttpSession session) {
 
-        List<String> matchedPattern = mongoClient.findMatchingFriends(id_query);
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+
+        List<String> matchedPattern = mongoClient.findMatchingFriends(id_query, user_id);
 
         JSONObject obj = new JSONObject();
         obj.put("queries", matchedPattern.toArray());
