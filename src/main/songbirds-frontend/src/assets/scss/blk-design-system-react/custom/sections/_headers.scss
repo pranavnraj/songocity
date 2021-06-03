@@ -15,13 +15,38 @@
         min-height: 65vh;
 
         .container{
-            padding-top: 20vh;
+            padding-top: 40vh;
         }
     }
 }
 
 .page-header1{
-     padding-top: 10vh;
+     padding-top: 20vh;
+
+     .container{
+             color: $white;
+     }
+
+     .title{
+             color: $white;
+     }
+
+    .carousel .carousel-indicators{
+            bottom: 60px;
+        }
+
+     &.header-small{
+             height: 65vh;
+             min-height: 65vh;
+
+             .container{
+                 padding-top: 10vh;
+             }
+         }
+}
+
+.page-header2{
+     padding-top: 40vh;
 
      .container{
              color: $white;
