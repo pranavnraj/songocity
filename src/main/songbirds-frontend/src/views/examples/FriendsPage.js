@@ -194,7 +194,7 @@ export default function FriendsPage() {
                 <CardHeader>
                   <h4 className="title">Friend List</h4>
                   <CardBody>
-                    <p>Start adding people as friends who are already on Songbirds. After you have added your friends, go to the Recommender page to create playlists for yourself based on their taste.</p>
+                    <p>Start adding people as friends who are already on Songocity. After you have added your friends, go to the Recommender page to create playlists for yourself based on their taste.</p>
                   </CardBody>
                   <Container fluid>
                     <Row>
@@ -240,7 +240,6 @@ export default function FriendsPage() {
               </Card>
             </Container>
           </div>
-          <Footer />
       </div>
     </>
   );
