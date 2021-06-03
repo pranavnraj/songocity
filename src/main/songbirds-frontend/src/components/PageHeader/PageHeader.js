@@ -32,7 +32,7 @@ export default function PageHeader() {
       <div className="squares square7" />
       <Container>
         <div className="content-center brand">
-          <h1 className="h1-seo">Songbirds</h1>
+          <h1 className="h1-seo">Songocity</h1>
           <h3 className="d-none d-sm-block">
           A recommendation system that will curate Spotify playlists for you based on your friends’ music taste.
           </h3>
