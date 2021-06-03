@@ -237,7 +237,6 @@ export default function RecommenderPage() {
                               </CardHeader>
                             </Container> </Card>}
           </div>
-          <Footer />
       </div>
     </>
   );

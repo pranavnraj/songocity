@@ -70,7 +70,7 @@ export default function ExamplesNavbar() {
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" id="navbar-brand" tag={Link}>
-            <strong>Songbirds</strong>
+            <strong>Songocity</strong>
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand">
             Homepage
