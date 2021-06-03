@@ -18,7 +18,7 @@ class FriendsList extends Component {
                 </ListGroup>
             )
         } else {
-            return <p>You currently don't have any friends on Songocity. </p>
+            return <p>  You currently don't have any friends on Songocity. </p>
         }
     }
 
