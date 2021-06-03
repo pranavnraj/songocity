@@ -172,7 +172,7 @@ export default function RecommenderPage() {
     <>
       <IndexNavbar />
       <div className="wrapper">
-          <div className="page-header">
+          <div className="page-header1">
             <img
               alt="..."
               className="dots"
@@ -183,11 +183,20 @@ export default function RecommenderPage() {
               className="path"
               src={require("assets/img/path4.png").default}
             />
+            {!loading && <Container className="align-items-start" style={{marginBottom:'60'}}>
+                                    <Card className="card-coin card-plain">
+                                      <CardBody>
+                                          <h4 className="title">Pick friends to get recommendations from</h4>
+                                      </CardBody>
+                                    </Card>
+                                  </Container>}
             {!loading &&
             <Container className="align-items-center">
               <Card color="default">
                 <CardHeader>
-                  <h4 className="title">Pick friends to get recommendations from</h4>
+                  <CardBody>
+                     <p>Choose one or more of your friends using the search bar and hit "Recommend" to create playlists catered to you based on their interests!</p>
+                  </CardBody>
                   <Container fluid>
                     <Row>
                       <Col xs={9} md={10}>
@@ -227,7 +236,7 @@ export default function RecommenderPage() {
                   </Container>
                 </CardHeader>
                 <CardBody>
-                                  <p>Choose one or more of your friends using the search bar and hit "Recommend" to create playlists catered to you based on their interests! Feel free to mix and match multiple friends to try different playlist combinations. </p>
+                                  <p>   Feel free to mix and match multiple friends to try different playlist combinations.</p>
                 </CardBody>
               </Card>
             </Container>}
