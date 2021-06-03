@@ -117,7 +117,7 @@ export default function ProfilePage() {
     <>
       <IndexNavbar />
       <div className="wrapper">
-        <div className="page-header">
+        <div className="page-header2">
           <img
             alt="..."
             className="dots"
