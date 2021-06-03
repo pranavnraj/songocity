@@ -178,7 +178,7 @@ export default function FriendsPage() {
     <>
       <IndexNavbar />
       <div className="wrapper">
-          <div className="page-header">
+          <div className="page-header1">
             <img
               alt="..."
               className="dots"
@@ -189,10 +189,16 @@ export default function FriendsPage() {
               className="path"
               src={require("assets/img/path4.png").default}
             />
+            <Container className="align-items-start" style={{marginBottom:'60'}}>
+                                                <Card className="card-coin card-plain">
+                                                  <CardBody>
+                                                      <h4 className="title">Friend List</h4>
+                                                  </CardBody>
+                                                </Card>
+                                              </Container>
             <Container className="align-items-center">
               <Card color="default">
                 <CardHeader>
-                  <h4 className="title">Friend List</h4>
                   <CardBody>
                     <p>Start adding people as friends who are already on Songocity. After you have added your friends, go to the Recommender page to create playlists for yourself based on their taste.</p>
                   </CardBody>
