@@ -87,7 +87,12 @@ public class SpotifyWebAPI {
             userInfo.put("id", user.getId());
             userInfo.put("display_name", user.getDisplayName());
             userInfo.put("email", user.getEmail());
-            userInfo.put("profile_pic", user.getImages()[0].getUrl());
+            Image[] images = user.getImages();
+            if (images.length > 0) {
+                userInfo.put("profile_pic", user.getImages()[0].getUrl());
+            } else {
+                userInfo.put("profile_pic", "assets/img/ryan.jpg");
+            }
 
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             System.out.println("Error: " + e.getMessage());
