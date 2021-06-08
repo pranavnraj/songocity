@@ -93,7 +93,13 @@ export default function RecommenderPage() {
       axios.post('/data/recommend', {"friendIDs": body}, {withCredentials: true})
       .then((response) => {
         setRecommenderLoading(false)
-        window.alert('Recommended Playlist created, check the New Playlists window to access it')
+        const res = response.data;
+        if (res.enoughSongs == true) {
+           window.alert('Recommended Playlist created, check the New Playlists window to access it')
+        } else {
+           window.alert('Recommended Playlist created, check the New Playlists window to access it. \n Due to your limited number of songs in your playlists, the recommendation process may not be as effective. Please add more songs to get a more effective playlist recommendation.')
+        }
+
         console.log(response)  
       })
       .catch((error) => {
