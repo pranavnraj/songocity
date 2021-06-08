@@ -32,7 +32,8 @@ import {
   Jumbotron,
   Row,
   Col,
-  Button
+  Button,
+  Spinner
 } from "reactstrap";
 import FriendsList from "components/FriendsList";
 //import globalVar from "views/examples/globalVar.js"
@@ -43,6 +44,7 @@ export default function RecommenderPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [loading, setLoading]= React.useState(window.loading);
+  const [recommenderLoading, setRecommenderLoading] = useState(false);
   const currFriends = useRef(null)
   let friendList = [] 
 
@@ -59,6 +61,15 @@ export default function RecommenderPage() {
       console.log(error.response);
     });
   }
+
+  const mySpinner = props => {
+   const style = { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
+    return (
+      <div style={style}>
+        <Spinner color="primary"/>
+      </div>
+    );
+  };
 
   const getCurrFriendInput = (e) => {
     setSearchTerm(e.target.value)
@@ -78,8 +89,10 @@ export default function RecommenderPage() {
       if (body.length == 0) {
         return;
       }
+      setRecommenderLoading(true)
       axios.post('/data/recommend', {"friendIDs": body}, {withCredentials: true})
       .then((response) => {
+        setRecommenderLoading(false)
         window.alert('Recommended Playlist created, check the New Playlists window to access it')
         console.log(response)  
       })
@@ -226,7 +239,6 @@ export default function RecommenderPage() {
                           size="sm"
                           onClick={() => 
                             {
-                              onButtonClickHandler();
                               recommend();
                             }}
                         > Recommend
@@ -240,6 +252,9 @@ export default function RecommenderPage() {
                 </CardBody>
               </Card>
             </Container>}
+            {recommenderLoading && <div style= {{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                                           <Spinner color="primary"/>
+                                         </div>}
             {loading && <Card className="card-coin card-plain"> <Container className="align-items-center">
                               <CardHeader>
                                 <h1 className="display-3" color="primary">The recommendation model is not yet finished training yet, please come back or reload in a few minutes!</h1>
