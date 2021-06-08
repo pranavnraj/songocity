@@ -51,10 +51,10 @@ export default function IndexNavbar() {
   const history = useHistory();
   const context = useContext(AppContext);
   const clientID = "3cceff6ff3144834b845505bcfab9cd7";
-  const redirectURI = "http://localhost:5000/callback/";
+  //const redirectURI = "http://localhost:5000/callback/";
   const MINUTE_MS = 900000;
 
-  //const redirectURI = "http://songbirds-dev.us-west-1.elasticbeanstalk.com/callback/";
+  const redirectURI = "http://songocity.com/callback/";
   React.useEffect(() => {
     authenticated().then((response) => {
             if(response.data.authenticated == "true"){
@@ -139,15 +139,17 @@ function wait(ms){
   const authenticated = () => {
         return axios.get('/authenticated', {withCredentials: true});
     }
-  const checkAuth = function() {
+  const checkAuth = function(callback_window) {
     authenticated().then((response) => {
       if(response.data.authenticated == "true") {
+        wait(1000)
+        callback_window.close()
         train()
         return;
       }
       else {
         wait(500)
-        checkAuth();
+        checkAuth(callback_window);
       }
     }).catch((error) => {
       console.log(error.response);
@@ -157,12 +159,13 @@ function wait(ms){
     if(context.authBtnText == "Log in") {
       var csrfStateValue = Math.random().toString(36).slice(2);
       primeLogin(csrfStateValue).then((response1) => {
-              window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
+              var callback_window = window.open("https://accounts.spotify.com/authorize?client_id=" + clientID + "&response_type=code&redirect_uri="
               + redirectURI + "&scope=user-top-read%20user-read-recently-played%20user-read-email%20playlist-modify-public%20playlist-modify-private%20playlist-read-private%20playlist-read-collaborative&state=" + csrfStateValue)
               getSpotifyLogin(csrfStateValue).then((response2) => {
                 context.setAuthText("Log out");
                 context.setDisplay(true);
-                checkAuth()
+                history.push("/components");
+                checkAuth(callback_window)
               })
               .catch((error) => {
                 console.log(error.response);
@@ -228,7 +231,7 @@ function wait(ms){
       <Container>
         <div className="navbar-translate">
           <NavbarBrand to="/" tag={Link} id="navbar-brand">
-          <strong>Songbirds</strong>
+          <strong>Songocity</strong>
           </NavbarBrand>
           <UncontrolledTooltip placement="bottom" target="navbar-brand" onClick={()=>history.push("/components")}>
             <strong>Home Page</strong>

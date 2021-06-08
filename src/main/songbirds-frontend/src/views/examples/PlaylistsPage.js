@@ -30,7 +30,8 @@ import {
   Input,
   Row,
   Col,
-  Button
+  Button,
+  Spinner
 } from "reactstrap";
 import FriendsList from "components/FriendsList";
 import { Accordion, Card } from "react-bootstrap";
@@ -46,6 +47,7 @@ export default function PlaylistsPage() {
   const [selectedUsers, setSelectedUsers] = useState([])
   const currFriends = useRef(null)
   const [songDisplay, setSongDisplay] = useState([])
+  const [playlistsLoading, setPlaylistsLoading] = useState(false);
 
 
   const tabs = [
@@ -61,8 +63,10 @@ export default function PlaylistsPage() {
   }
 
   const populatePlaylistList = () => {
+        setPlaylistsLoading(true)
         getPlaylistList().then((response) => {
 
+          setPlaylistsLoading(false)
           var allPlaylists = [];
           const res = response.data;
 
@@ -227,6 +231,9 @@ export default function PlaylistsPage() {
                       </Accordion>
                     ))}
             </Container>
+            {playlistsLoading && <div style= {{ position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}>
+                                                       <Spinner color="primary"/>
+                                                     </div>}
           </div>
       </div>
     </>
