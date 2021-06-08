@@ -118,9 +118,17 @@ def produceTestingData(friend_id_list):
 	return testing_data
 
 def produceRecs(preds, test_index_to_track, training_data):
+
+	sort_preds = [row[1] for row in preds]
+	sort_preds.sort(reverse=True)
+	if (len(sort_preds) <= 25):
+		threshold = sort_preds[len(sort_preds) - 1]
+	else:
+		threshold = sort_preds[24]
+
 	recs = []
 	for index, rec in enumerate(preds):
-		if rec[1] >= 0.70 and test_index_to_track[index] not in training_data:
+		if rec[1] >= threshold and test_index_to_track[index] not in training_data:
 			recs.append(index)
 
 	track_recs = []
