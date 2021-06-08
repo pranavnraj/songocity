@@ -333,7 +333,13 @@ public class DataController {
 
         HashMap<String, String> genres;
         try {
-            genres = api.getRecommendations(numTracks / AppConstants.NUM_GENRES);
+            int songsPerGenre;
+            if (numTracks/AppConstants.NUM_GENRES == 0) {
+                songsPerGenre = 1;
+            } else {
+                songsPerGenre = numTracks/AppConstants.NUM_GENRES;
+            }
+            genres = api.getRecommendations(songsPerGenre);
         } catch(ServiceUnavailableException e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Spotify Web API unavailable");
         } catch(SpotifyWebApiException e) {
