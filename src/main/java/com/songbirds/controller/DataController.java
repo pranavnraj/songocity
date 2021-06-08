@@ -235,7 +235,7 @@ public class DataController {
 
     @RequestMapping(value = "/recommend", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
-    public ResponseEntity generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
+    public ResponseEntity<String> generateRecommendedPlaylist(@RequestBody Friends friends, HttpSession session) {
 
         String user_id;
         try {
@@ -283,7 +283,11 @@ public class DataController {
         api.addTracksToPlaylist(playlistID, trackURIs, user_id);
         mongoClient.addNewPlaylist(user_id, playlistID, title);
 
-        return ResponseEntity.status(responseEntity.getStatusCode()).body(responseEntity.getBody());
+        boolean tooFewSongsFlag = mongoClient.isEnoughSongs(user_id);
+        JSONObject obj = new JSONObject();
+        obj.put("enoughSongs", tooFewSongsFlag);
+
+        return ResponseEntity.status(responseEntity.getStatusCode()).body(obj.toString());
     }
 
 
@@ -318,6 +322,8 @@ public class DataController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unknown Internal Error");
         }
         int numTracks = api.getNumTracks(playlistsInfo);
+
+        mongoClient.markTooFewSongs(user_id, numTracks);
 
         Gson gson = new GsonBuilder().create();
         JsonObject user = gson.toJsonTree(playlistsInfo).getAsJsonObject();

@@ -6,6 +6,7 @@ import com.mongodb.client.*;
 import com.mongodb.MongoClientSettings;
 
 import com.mongodb.client.model.Updates;
+import com.songbirds.util.AppConstants;
 import com.songbirds.util.MongoDBConstants;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -296,6 +297,27 @@ public class MongoDBClient {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
 
         collection.updateOne(eq("_id", userId), set("is_trained", true));
+    }
+
+    public boolean isEnoughSongs(String userId) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        Document doc = collection.find(eq("_id", userId)).first();
+        if (doc.containsKey("enough_songs") && doc.getBoolean("enough_songs")) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void markTooFewSongs(String userId, int numTracks) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        if (numTracks >= AppConstants.NUM_GENRES) {
+            collection.updateOne(eq("_id", userId), set("enough_songs", true));
+        } else {
+            collection.updateOne(eq("_id", userId), set("enough_songs", false));
+        }
     }
 
 
