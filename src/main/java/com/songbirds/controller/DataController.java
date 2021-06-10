@@ -88,6 +88,23 @@ public class DataController {
         return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
     }
 
+    @RequestMapping(value = "/profile_picture", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
+    public ResponseEntity<String> getProfilePicture(@RequestParam(name="friend") String friend, HttpSession session){
+
+        String user_id;
+        try {
+            user_id = session.getAttribute("user_id").toString();
+        } catch (NullPointerException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Cannot find user for session ID");
+        }
+        String profilePicURL = mongoClient.getProfilePicURL(friend);
+
+        JSONObject obj = new JSONObject();
+        obj.put("profile_pic", profilePicURL);
+        return ResponseEntity.status(HttpStatus.OK).body(obj.toString());
+    }
+
     @RequestMapping(value = "/query_friend", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @CrossOrigin(origins="http://localhost:3000", allowCredentials = "true")
     public ResponseEntity<String> queryFriend(@RequestParam(name="id_query") String id_query, HttpSession session) {
