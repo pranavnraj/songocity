@@ -100,6 +100,13 @@ public class MongoDBClient {
 
     }
 
+    public String getProfilePicURL(String friendID) {
+        MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
+
+        Document document = collection.find(eq("display_name", friendID)).first();
+        return document.getString("profile_pic_url");
+    }
+
     public void deleteProfile(String id) {
         MongoCollection<Document> collection = songbirdDB.getCollection(MongoDBConstants.PROFILE_COLLECTION);
         collection.deleteOne(eq("_id", id));
