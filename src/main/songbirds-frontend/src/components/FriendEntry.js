@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Button, ListGroupItem } from 'reactstrap'
+import axios from "axios";
 
 const listItemStyle = {
     color: "black", 
@@ -10,13 +11,33 @@ const listItemStyle = {
 
 class FriendEntry extends Component {
 
+    constructor() {
+        super()
+        this.state = {
+            profilePicture: "src/assets/img/ryan.jpg",
+        }
+    }
+
+    getProfilePicture = () => {
+        let request = '/data/profile_picture?friend=' + this.props.name
+        axios.get(request, {withCredentials: true}).then((response) => {
+            this.setState({profilePicture: response.data.profile_pic})
+        }).catch((error) => {
+            console.log(error.response);
+        })
+    }
+    
+    componentDidMount() {
+        this.getProfilePicture()
+    }
+
     render() {
         return (
             <ListGroupItem style={listItemStyle}>
                 <img
                 alt="..."
                 className="img-fluid rounded-circle shadow"
-                src={require("assets/img/ryan.jpg").default}
+                src={this.state.profilePicture}
                 style={{ width: "50px", margin: "10px"}}
                 />
                 {this.props.name}

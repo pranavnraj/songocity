@@ -51,7 +51,7 @@ export default function IndexNavbar() {
   const history = useHistory();
   const context = useContext(AppContext);
   const clientID = "3cceff6ff3144834b845505bcfab9cd7";
-  //const redirectURI = "http://localhost:5000/callback/";
+  // const redirectURI = "http://localhost:5000/callback/";
   const MINUTE_MS = 900000;
 
   const redirectURI = "http://songocity.com/callback/";
