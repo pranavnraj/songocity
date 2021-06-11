@@ -14,6 +14,7 @@ import ProfilePage from "views/examples/ProfilePage.js";
 import FriendsPage from "views/examples/FriendsPage.js";
 import RecommenderPage from "views/examples/RecommenderPage.js";
 import PlaylistsPage from "views/examples/PlaylistsPage.js";
+import AboutUsPage from "views/examples/AboutUsPage.js";
 
 export default function App () {
   const [authBtnText, setAuthText] = useState("Log in");
@@ -59,6 +60,10 @@ export default function App () {
             path="/playlists"
             render={(props) => <PlaylistsPage {...props}/>}
             />
+          <Route 
+            path="/about-us"
+            render={(props) => <AboutUsPage {...props}/>}
+          />
           <Redirect from="/" to="/components" />
         </Switch>
       </BrowserRouter>

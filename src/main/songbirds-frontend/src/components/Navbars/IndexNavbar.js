@@ -216,6 +216,15 @@ function wait(ms){
       </NavItem>
       <NavItem>
         <Button
+        className="btn-link"
+        color="info"
+        onClick={() => history.push("/about-us")}
+        >
+          About Us
+        </Button>
+      </NavItem>
+      <NavItem>
+        <Button
           className="nav-link d-none d-lg-block"
           color="primary"
           target="_blank"
@@ -224,6 +233,7 @@ function wait(ms){
         <i className="tim-icons icon-single-02" /> Profile
         </Button>
       </NavItem>
+
     </Nav>
   );
   return (
