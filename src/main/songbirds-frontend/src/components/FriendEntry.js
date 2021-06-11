@@ -14,14 +14,16 @@ class FriendEntry extends Component {
     constructor() {
         super()
         this.state = {
-            profilePicture: "src/assets/img/ryan.jpg",
+            profilePicture: require("assets/img/ryan.jpg").default,
         }
     }
 
     getProfilePicture = () => {
         let request = '/data/profile_picture?friend=' + this.props.name
         axios.get(request, {withCredentials: true}).then((response) => {
-            this.setState({profilePicture: response.data.profile_pic})
+            if (response.data.profile_pic != "assets/img/ryan.jpg") {
+                this.setState({profilePicture: response.data.profile_pic})
+            }
         }).catch((error) => {
             console.log(error.response);
         })
