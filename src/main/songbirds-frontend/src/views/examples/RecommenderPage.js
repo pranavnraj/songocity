@@ -97,7 +97,7 @@ export default function RecommenderPage() {
         if (res.enoughSongs == true) {
            window.alert('Recommended Playlist created, check the New Playlists window to access it')
         } else {
-           window.alert('Recommended Playlist created, check the New Playlists window to access it. \n Due to your limited number of songs in your playlists, the recommendation process may not be as effective. Please add more songs to get a more effective playlist recommendation.')
+           window.alert('Recommended Playlist created, check the New Playlists window to access it. \nDue to your limited number of songs in your playlists, the recommendation process may not be as effective. Please add more songs to get a more effective playlist recommendation.')
         }
 
         console.log(response)  
