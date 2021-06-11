@@ -83,7 +83,12 @@ export default function ProfilePage() {
       const res = response.data;
       setName(res.display_name);
       setId(res.id);
-      setProfilePic(res.profile_pic);
+      if (res.profile_pic != "assets/img/ryan.jpg") {
+         setProfilePic(res.profile_pic);
+      } else {
+         setProfilePic(require("assets/img/ryan.jpg").default)
+      }
+
       setEmail(res.email);
     })
     .catch((error) => {
